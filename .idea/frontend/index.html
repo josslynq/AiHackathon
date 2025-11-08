@@ -3,6 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <title>Bengali Language Tutor</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .feedback-area { background: #f5f5f5; padding: 15px; border-radius: 8px; margin: 10px 0; }
+        .ai-feedback { color: #2c5530; font-style: italic; margin: 10px 0; }
+        .loading { color: #666; font-style: italic; }
+        button { margin: 5px; padding: 10px 15px; cursor: pointer; }
+        .word-display { font-size: 24px; margin: 15px 0; }
+        .transliteration { color: #666; font-size: 18px; }
+        input[type="text"] { padding: 10px; width: 300px; margin-right: 10px; }
+        .conversation-response { background: #e8f4fd; padding: 10px; border-radius: 5px; margin-top: 10px; }
+        .next-btn { background: #4CAF50; color: white; border: none; padding: 12px 20px; font-size: 16px; }
+        .next-btn:disabled { background: #cccccc; cursor: not-allowed; }
+    </style>
 </head>
 <body>
 <h2>Learn Bengali (Bangla) 🇧🇩</h2>
@@ -11,117 +24,243 @@
 <div id="lessonOutput" style="margin-top: 20px;"></div>
 
 <hr>
-<h3>🎤 Pronunciation Practice</h3>
-<p id="currentWord"></p>
+<h3>🎤 AI Pronunciation Practice</h3>
+<div class="word-display">
+    <span id="currentWord"></span>
+    <div class="transliteration" id="currentTransliteration"></div>
+    <div id="wordMeaning"></div>
+</div>
 <button id="speakBtn" disabled>Hear Word 🔊</button>
 <button id="recordBtn" disabled>Try Saying It 🎙</button>
-<p id="feedback"></p>
+
+<!-- 🆕 ADD NEXT BUTTON -->
+<button id="nextBtn" class="next-btn" disabled>Next Word ➡️</button>
+
+<div class="feedback-area">
+    <h4>AI Feedback</h4>
+    <div id="transliterationOutput"></div>
+    <div id="aiFeedback" class="ai-feedback"></div>
+    <div id="basicFeedback"></div>
+</div>
+
+<hr>
+<h3>💬 AI Conversation Practice</h3>
+<input type="text" id="conversationInput" placeholder="Try speaking in Bengali...">
+<button id="sendMessageBtn">Send to AI Tutor</button>
+<div id="conversationOutput" style="margin-top: 10px;"></div>
 
 <script>
     let lessonData = null;
     let currentIndex = 0;
+    let isAnalyzing = false;
 
     // Get Lesson
     document.getElementById("lessonBtn").onclick = async () => {
-      const res = await fetch("http://127.0.0.1:5000/lesson?lang=Bengali");
-      const data = await res.json();
-      lessonData = data;
-      currentIndex = 0;
+        const res = await fetch("http://127.0.0.1:5001/lesson?lang=Bengali");
+        const data = await res.json();
+        lessonData = data;
+        currentIndex = 0;
 
-      // Display text lesson
-      let html = `<h3>${data.language} Lesson</h3>`;
-      html += "<h4>🗣 Vocabulary</h4><ul>";
-      data.vocab.forEach(word => {
-        html += `<li>${word.bengali} (${word.transliteration}) — ${word.english}</li>`;
-      });
-      html += "</ul>";
-      document.getElementById("lessonOutput").innerHTML = html;
+        // Display text lesson
+        let html = `<h3>${data.language} Lesson</h3>`;
+        html += "<h4>🗣 Vocabulary</h4><ul>";
+        data.vocab.forEach(word => {
+            html += `<li>${word.bengali} (${word.transliteration}) — ${word.english}</li>`;
+        });
+        html += "</ul>";
+        document.getElementById("lessonOutput").innerHTML = html;
 
-      // Start pronunciation practice
-      if (data.vocab && data.vocab.length > 0) {
-        document.getElementById("currentWord").innerText =
-          `Say this word: ${data.vocab[currentIndex].bengali} (${data.vocab[currentIndex].transliteration})`;
+        // Start pronunciation practice
+        updateCurrentWord();
         document.getElementById("speakBtn").disabled = false;
         document.getElementById("recordBtn").disabled = false;
-      }
+    };
+
+    function updateCurrentWord() {
+        if (!lessonData || !lessonData.vocab.length) return;
+
+        const currentWord = lessonData.vocab[currentIndex];
+        document.getElementById("currentWord").innerText = currentWord.bengali;
+        document.getElementById("currentTransliteration").innerText = `(${currentWord.transliteration})`;
+        document.getElementById("wordMeaning").innerText = currentWord.english;
+
+        // Clear previous feedback and disable next button
+        document.getElementById("aiFeedback").innerText = "";
+        document.getElementById("basicFeedback").innerText = "";
+        document.getElementById("transliterationOutput").innerText = "";
+        document.getElementById("nextBtn").disabled = true;
+        document.getElementById("recordBtn").disabled = false;
+        isAnalyzing = false;
+    }
+
+    // 🆕 NEXT BUTTON HANDLER
+    document.getElementById("nextBtn").onclick = () => {
+        currentIndex = (currentIndex + 1) % lessonData.vocab.length;
+        updateCurrentWord();
     };
 
     // Hear the correct pronunciation
     document.getElementById("speakBtn").onclick = () => {
-      if (!lessonData) return;
-      const word = lessonData.vocab[currentIndex].bengali;
-      const u = new SpeechSynthesisUtterance(word);
-      u.lang = "bn-BD";
-      speechSynthesis.speak(u);
+        if (!lessonData) return;
+        const word = lessonData.vocab[currentIndex].bengali;
+        const u = new SpeechSynthesisUtterance(word);
+        u.lang = "bn-BD";
+        speechSynthesis.speak(u);
     };
 
-    // Record user's attempt
+    // Record user's attempt with AI analysis
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (SpeechRecognition) {
-      const rec = new SpeechRecognition();
-      rec.lang = "bn-BD";
-      rec.onresult = (e) => {
-        const spoken = e.results[0][0].transcript.trim();
-        const target = lessonData.vocab[currentIndex].bengali;
-        document.getElementById("feedback").innerText = `You said: ${spoken}`;
+        const rec = new SpeechRecognition();
+        rec.lang = "bn-BD";
+        rec.continuous = false;
 
-        // Compare phonetic similarity (very simple)
-        const score = similarity(spoken, target);
-        if (score > 0.8) {
-          document.getElementById("feedback").innerText += "\n✅ Great pronunciation!";
-        } else if (score > 0.5) {
-          document.getElementById("feedback").innerText += "\n⚠️ Close, try again.";
-        } else {
-          document.getElementById("feedback").innerText += "\n❌ Keep practicing!";
+        rec.onresult = async (e) => {
+            if (isAnalyzing) return; // Prevent multiple analyses
+
+            isAnalyzing = true;
+            const spokenText = e.results[0][0].transcript.trim();
+            const currentWord = lessonData.vocab[currentIndex];
+
+            // Show what was recognized
+            document.getElementById("basicFeedback").innerText = `You said: "${spokenText}"`;
+
+            // Show loading state
+            document.getElementById("aiFeedback").innerText = "🔄 Analyzing your pronunciation with AI...";
+            document.getElementById("transliterationOutput").innerText = "🔄 Converting to transliteration...";
+            document.getElementById("recordBtn").disabled = true; // Disable record while analyzing
+
+            try {
+                // Get transliteration of what was spoken
+                const translitResponse = await fetch("http://127.0.0.1:5001/transliterate", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ bengali_text: spokenText })
+                });
+
+                const translitData = await translitResponse.json();
+                if (!translitResponse.ok) throw new Error(translitData.error);
+
+                document.getElementById("transliterationOutput").innerText =
+                    `Transliteration of what you said: ${translitData.transliteration}`;
+
+                // Get AI pronunciation feedback
+                const analysisResponse = await fetch("http://127.0.0.1:5001/analyze-pronunciation", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        spoken_text: spokenText,
+                        target_word: currentWord.bengali,
+                        target_transliteration: currentWord.transliteration,
+                        target_meaning: currentWord.english
+                    })
+                });
+
+                const analysisData = await analysisResponse.json();
+                if (!analysisResponse.ok) throw new Error(analysisData.error);
+
+                document.getElementById("aiFeedback").innerText = `🤖 AI Feedback: ${analysisData.feedback}`;
+
+                // 🆕 ENABLE NEXT BUTTON INSTEAD OF AUTO-ADVANCING
+                document.getElementById("nextBtn").disabled = false;
+
+            } catch (error) {
+                console.error("Error:", error);
+                document.getElementById("aiFeedback").innerText = `❌ Error: ${error.message}`;
+                // Still enable next button even if there's an error
+                document.getElementById("nextBtn").disabled = false;
+            } finally {
+                isAnalyzing = false;
+            }
+        };
+
+        rec.onerror = (event) => {
+            document.getElementById("aiFeedback").innerText = `❌ Recognition error: ${event.error}`;
+            isAnalyzing = false;
+            document.getElementById("recordBtn").disabled = false;
+        };
+
+        document.getElementById("recordBtn").onclick = () => {
+            if (isAnalyzing) return;
+            document.getElementById("aiFeedback").innerText = "🎤 Listening...";
+            rec.start();
+        };
+
+    } else {
+        document.getElementById("recordBtn").disabled = true;
+        document.getElementById("aiFeedback").innerText = "Speech recognition not supported in this browser.";
+    }
+
+    // AI Conversation Practice
+    document.getElementById("sendMessageBtn").onclick = async () => {
+        const message = document.getElementById("conversationInput").value;
+        if (!message) return;
+
+        document.getElementById("conversationOutput").innerHTML = "🔄 AI is thinking...";
+
+        try {
+            const response = await fetch("http://127.0.0.1:5001/conversation-practice", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message: message, language: "Bengali" })
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                document.getElementById("conversationOutput").innerHTML =
+                    `<div class="conversation-response">
+                        <strong>You:</strong> ${message}<br>
+                        <strong>AI Tutor:</strong> ${data.ai_response}
+                    </div>`;
+            } else {
+                document.getElementById("conversationOutput").innerHTML =
+                    `❌ Error: ${data.error}`;
+            }
+        } catch (error) {
+            document.getElementById("conversationOutput").innerHTML =
+                `❌ Network error: ${error.message}`;
         }
 
-        // Move to next word
-        currentIndex = (currentIndex + 1) % lessonData.vocab.length;
-        document.getElementById("currentWord").innerText =
-          `Next: ${lessonData.vocab[currentIndex].bengali} (${lessonData.vocab[currentIndex].transliteration})`;
-      };
-      document.getElementById("recordBtn").onclick = () => rec.start();
-    } else {
-      document.getElementById("recordBtn").disabled = true;
-      document.getElementById("feedback").innerText = "Speech recognition not supported in this browser.";
-    }
+        // Clear input
+        document.getElementById("conversationInput").value = "";
+    };
 
     // Helper: simple text similarity
     function similarity(a, b) {
-      a = a.toLowerCase();
-      b = b.toLowerCase();
-      const longer = a.length > b.length ? a : b;
-      const shorter = a.length > b.length ? b : a;
-      const longerLength = longer.length;
-      if (longerLength === 0) return 1.0;
-      const same = longerLength - editDistance(longer, shorter);
-      return same / longerLength;
+        a = a.toLowerCase();
+        b = b.toLowerCase();
+        const longer = a.length > b.length ? a : b;
+        const shorter = a.length > b.length ? b : a;
+        const longerLength = longer.length;
+        if (longerLength === 0) return 1.0;
+        const same = longerLength - editDistance(longer, shorter);
+        return same / longerLength;
     }
 
     function editDistance(s1, s2) {
-      s1 = s1.toLowerCase();
-      s2 = s2.toLowerCase();
-      const costs = [];
-      for (let i = 0; i <= s1.length; i++) {
-        let lastValue = i;
-        for (let j = 0; j <= s2.length; j++) {
-          if (i === 0)
-            costs[j] = j;
-          else {
-            if (j > 0) {
-              let newValue = costs[j - 1];
-              if (s1.charAt(i - 1) !== s2.charAt(j - 1))
-                newValue = Math.min(Math.min(newValue, lastValue),
-                  costs[j]) + 1;
-              costs[j - 1] = lastValue;
-              lastValue = newValue;
+        s1 = s1.toLowerCase();
+        s2 = s2.toLowerCase();
+        const costs = [];
+        for (let i = 0; i <= s1.length; i++) {
+            let lastValue = i;
+            for (let j = 0; j <= s2.length; j++) {
+                if (i === 0)
+                    costs[j] = j;
+                else {
+                    if (j > 0) {
+                        let newValue = costs[j - 1];
+                        if (s1.charAt(i - 1) !== s2.charAt(j - 1))
+                            newValue = Math.min(Math.min(newValue, lastValue),
+                                costs[j]) + 1;
+                        costs[j - 1] = lastValue;
+                        lastValue = newValue;
+                    }
+                }
             }
-          }
+            if (i > 0)
+                costs[s2.length] = lastValue;
         }
-        if (i > 0)
-          costs[s2.length] = lastValue;
-      }
-      return costs[s2.length];
+        return costs[s2.length];
     }
 </script>
 </body>
