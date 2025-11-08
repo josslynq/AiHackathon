@@ -1,0 +1,20 @@
+{
+  "Bengali": {
+    "language": "Bengali (Bangla)",
+    "vocab": [
+      {"bengali": "হ্যালো", "english": "Hello", "transliteration": "Hyālō"},
+      {"bengali": "ধন্যবাদ", "english": "Thank you", "transliteration": "Dhônbad"},
+      {"bengali": "আপনি কেমন আছেন?", "english": "How are you?", "transliteration": "Apni kemon achhen?"},
+      {"bengali": "আমি ভালো আছি", "english": "I am fine", "transliteration": "Ami bhalo achhi"}
+    ],
+    "grammar": [
+      "Bengali sentences usually follow Subject-Object-Verb (SOV) order.",
+      "Verbs change according to tense and formality.",
+      "There are two forms of 'you': আপনি (formal) and তুমি (informal)."
+    ],
+    "dialogue": [
+      {"bengali": "আপনি কেমন আছেন?", "english": "How are you?", "transliteration": "Apni kemon achhen?"},
+      {"bengali": "আমি ভালো আছি!", "english": "I am fine!", "transliteration": "Ami bhalo achhi!"}
+    ]
+  }
+}

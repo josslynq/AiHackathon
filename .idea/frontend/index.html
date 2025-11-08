@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Bengali Language Tutor</title>
+</head>
+<body>
+<h2>Learn Bengali (Bangla) 🇧🇩</h2>
+
+<button id="lessonBtn">Get Lesson</button>
+<div id="lessonOutput" style="margin-top: 20px;"></div>
+
+<hr>
+<h3>🎤 Pronunciation Practice</h3>
+<p id="currentWord"></p>
+<button id="speakBtn" disabled>Hear Word 🔊</button>
+<button id="recordBtn" disabled>Try Saying It 🎙</button>
+<p id="feedback"></p>
+
+<script>
+    let lessonData = null;
+    let currentIndex = 0;
+
+    // Get Lesson
+    document.getElementById("lessonBtn").onclick = async () => {
+      const res = await fetch("http://127.0.0.1:5000/lesson?lang=Bengali");
+      const data = await res.json();
+      lessonData = data;
+      currentIndex = 0;
+
+      // Display text lesson
+      let html = `<h3>${data.language} Lesson</h3>`;
+      html += "<h4>🗣 Vocabulary</h4><ul>";
+      data.vocab.forEach(word => {
+        html += `<li>${word.bengali} (${word.transliteration}) — ${word.english}</li>`;
+      });
+      html += "</ul>";
+      document.getElementById("lessonOutput").innerHTML = html;
+
+      // Start pronunciation practice
+      if (data.vocab && data.vocab.length > 0) {
+        document.getElementById("currentWord").innerText =
+          `Say this word: ${data.vocab[currentIndex].bengali} (${data.vocab[currentIndex].transliteration})`;
+        document.getElementById("speakBtn").disabled = false;
+        document.getElementById("recordBtn").disabled = false;
+      }
+    };
+
+    // Hear the correct pronunciation
+    document.getElementById("speakBtn").onclick = () => {
+      if (!lessonData) return;
+      const word = lessonData.vocab[currentIndex].bengali;
+      const u = new SpeechSynthesisUtterance(word);
+      u.lang = "bn-BD";
+      speechSynthesis.speak(u);
+    };
+
+    // Record user's attempt
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      const rec = new SpeechRecognition();
+      rec.lang = "bn-BD";
+      rec.onresult = (e) => {
+        const spoken = e.results[0][0].transcript.trim();
+        const target = lessonData.vocab[currentIndex].bengali;
+        document.getElementById("feedback").innerText = `You said: ${spoken}`;
+
+        // Compare phonetic similarity (very simple)
+        const score = similarity(spoken, target);
+        if (score > 0.8) {
+          document.getElementById("feedback").innerText += "\n✅ Great pronunciation!";
+        } else if (score > 0.5) {
+          document.getElementById("feedback").innerText += "\n⚠️ Close, try again.";
+        } else {
+          document.getElementById("feedback").innerText += "\n❌ Keep practicing!";
+        }
+
+        // Move to next word
+        currentIndex = (currentIndex + 1) % lessonData.vocab.length;
+        document.getElementById("currentWord").innerText =
+          `Next: ${lessonData.vocab[currentIndex].bengali} (${lessonData.vocab[currentIndex].transliteration})`;
+      };
+      document.getElementById("recordBtn").onclick = () => rec.start();
+    } else {
+      document.getElementById("recordBtn").disabled = true;
+      document.getElementById("feedback").innerText = "Speech recognition not supported in this browser.";
+    }
+
+    // Helper: simple text similarity
+    function similarity(a, b) {
+      a = a.toLowerCase();
+      b = b.toLowerCase();
+      const longer = a.length > b.length ? a : b;
+      const shorter = a.length > b.length ? b : a;
+      const longerLength = longer.length;
+      if (longerLength === 0) return 1.0;
+      const same = longerLength - editDistance(longer, shorter);
+      return same / longerLength;
+    }
+
+    function editDistance(s1, s2) {
+      s1 = s1.toLowerCase();
+      s2 = s2.toLowerCase();
+      const costs = [];
+      for (let i = 0; i <= s1.length; i++) {
+        let lastValue = i;
+        for (let j = 0; j <= s2.length; j++) {
+          if (i === 0)
+            costs[j] = j;
+          else {
+            if (j > 0) {
+              let newValue = costs[j - 1];
+              if (s1.charAt(i - 1) !== s2.charAt(j - 1))
+                newValue = Math.min(Math.min(newValue, lastValue),
+                  costs[j]) + 1;
+              costs[j - 1] = lastValue;
+              lastValue = newValue;
+            }
+          }
+        }
+        if (i > 0)
+          costs[s2.length] = lastValue;
+      }
+      return costs[s2.length];
+    }
+</script>
+</body>
+</html>
