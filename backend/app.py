@@ -129,7 +129,7 @@ def conversation_practice():
     except Exception as e:
         return jsonify({"error": f"Conversation failed: {str(e)}"}), 500
 
-# 🆕 FIXED QUESTION ROUTE - SHORT RESPONSES
+# 🆕 IMPROVED QUESTION ROUTE - AUTO-DETECT BENGALI REQUESTS
 @app.route("/ask-question", methods=["POST"])
 def ask_question():
     data = request.json
@@ -139,24 +139,53 @@ def ask_question():
         prompt = f"""
         Student asks: "{question}"
         
-        Give a SHORT answer (2-3 sentences max). 
-        If teaching a phrase, format as:
+        IMPORTANT: If they ask how to say something in Bengali, provide the Bengali translation.
+        If they ask about Bengali language/culture, answer specifically about Bengali.
+        
+        Format short answers (2-3 sentences max). 
+        If teaching phrases, format as:
         Bengali (transliteration) - English
         
-        No long explanations. Be direct and concise.
+        Always assume they want Bengali unless specified otherwise.
         """
 
         answer = call_gemini_direct(prompt)
 
+        # 🆕 AUTO-EXTRACT PHRASES FOR VOCABULARY
+        extract_prompt = f"""
+        Extract Bengali vocabulary from this text: "{answer}"
+        
+        Return as JSON array of objects with:
+        - bengali: the Bengali word/phrase
+        - transliteration: English transliteration  
+        - english: English meaning
+        
+        Only extract actual Bengali words/phrases that would be useful for language learning.
+        If no Bengali words, return empty array.
+        
+        Example: [{{"bengali": "ধন্যবাদ", "transliteration": "dhonnobad", "english": "thank you"}}]
+        """
+
+        try:
+            extraction_result = call_gemini_direct(extract_prompt)
+            # Clean the response and parse as JSON
+            extraction_result = extraction_result.strip()
+            if extraction_result.startswith('```json'):
+                extraction_result = extraction_result.replace('```json', '').replace('```', '')
+            extracted_words = json.loads(extraction_result)
+        except:
+            extracted_words = []
+
         return jsonify({
             "question": question,
-            "answer": answer
+            "answer": answer,
+            "extracted_words": extracted_words
         })
 
     except Exception as e:
         return jsonify({"error": f"Question failed: {str(e)}"}), 500
 
 if __name__ == "__main__":
-    print("🚀 Starting Fixed Bengali Tutor...")
+    print("🚀 Starting Improved Bengali Tutor...")
     print(f"🔑 API Key Loaded: {bool(GEMINI_API_KEY)}")
     app.run(port=5001, debug=True)

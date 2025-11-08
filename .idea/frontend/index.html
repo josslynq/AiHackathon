@@ -14,11 +14,14 @@
         button { margin: 5px; padding: 10px 15px; cursor: pointer; }
         input, textarea { padding: 10px; margin: 5px; width: 300px; }
         .word-card { background: #f9f9f9; padding: 15px; margin: 10px 0; border-radius: 5px; }
-        .chat-message { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .chat-message { margin: 10px 0; padding: 10px; border-radius: 5px; position: relative; }
         .user-message { background: #e3f2fd; margin-left: 50px; }
         .ai-message { background: #f5f5f5; margin-right: 50px; }
         .voice-btn { background: #ff9800; color: white; }
         .practice-active { background: #4CAF50; color: white; }
+        .speak-btn { background: none; border: 1px solid #ccc; padding: 5px 10px; margin-left: 10px; border-radius: 3px; cursor: pointer; }
+        .word-to-add { background: #e8f5e8; padding: 10px; margin: 5px 0; border-radius: 5px; }
+        .add-confirm { background: #4CAF50; color: white; margin-left: 10px; }
     </style>
 </head>
 <body>
@@ -75,6 +78,7 @@
         <div id="chatHistory" style="height: 300px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;">
             <div class="chat-message ai-message">
                 <strong>AI Tutor:</strong> Hello! I'm your Bengali tutor. You can type or speak to practice conversation!
+                <button class="speak-btn" onclick="speakText('Hello! I\\'m your Bengali tutor. You can type or speak to practice conversation!')">🔊</button>
             </div>
         </div>
 
@@ -100,8 +104,8 @@
         <button onclick="askQuestion()">Ask AI</button>
 
         <div style="margin: 10px 0;">
-            <button class="small-btn" onclick="setExampleQuestion('How do you say thank you?')">Example 1</button>
-            <button class="small-btn" onclick="setExampleQuestion('When do you use formal vs informal speech?')">Example 2</button>
+            <button class="small-btn" onclick="setExampleQuestion('How do you say thank you in Bengali?')">Example 1</button>
+            <button class="small-btn" onclick="setExampleQuestion('When do you use formal vs informal speech in Bengali?')">Example 2</button>
             <button class="small-btn" onclick="setExampleQuestion('What is the difference between তুমি and আপনি?')">Example 3</button>
         </div>
     </div>
@@ -109,11 +113,9 @@
     <div class="section">
         <h3>💡 AI Answer</h3>
         <div id="questionAnswer"></div>
-        <div id="saveVocabulary" style="display:none; margin-top: 10px;">
-            <input type="text" id="customBengali" placeholder="Bengali word">
-            <input type="text" id="customTransliteration" placeholder="Transliteration">
-            <input type="text" id="customEnglish" placeholder="English meaning">
-            <button onclick="saveCustomWord()">💾 Save to My Words</button>
+        <div id="autoAddSection" style="display:none; margin-top: 15px;">
+            <h4>💾 Add to Vocabulary?</h4>
+            <div id="wordsToAdd"></div>
         </div>
     </div>
 </div>
@@ -135,6 +137,25 @@
     let currentIndex = 0;
     let customWords = JSON.parse(localStorage.getItem('customBengaliWords')) || [];
     let isRecording = false;
+    let currentExtractedWords = [];
+
+    // 🆕 TEXT-TO-SPEECH FUNCTION
+    function speakText(text) {
+        // Extract Bengali text if it exists (text between Bengali characters)
+        const bengaliRegex = /[\u0980-\u09FF]+/g;
+        const bengaliMatches = text.match(bengaliRegex);
+
+        let textToSpeak = text;
+        if (bengaliMatches && bengaliMatches.length > 0) {
+            // Speak the first Bengali phrase found
+            textToSpeak = bengaliMatches[0];
+        }
+
+        const utterance = new SpeechSynthesisUtterance(textToSpeak);
+        utterance.lang = 'bn-BD';
+        utterance.rate = 0.8;
+        speechSynthesis.speak(utterance);
+    }
 
     // 📚 Learn Section Functions
     async function loadDefaultLesson() {
@@ -147,7 +168,9 @@
         data.vocab.forEach((word, index) => {
             html += `
                 <div class="word-card">
-                    <strong>${word.bengali}</strong> (${word.transliteration}) - ${word.english}
+                    <strong>${word.bengali}</strong>
+                    <button class="speak-btn" onclick="speakText('${word.bengali}')">🔊</button>
+                    <br>(${word.transliteration}) - ${word.english}
                     <button onclick="practiceWord(${index})" class="practice-btn">Practice This</button>
                 </div>
             `;
@@ -164,7 +187,9 @@
             customWords.forEach((word, index) => {
                 html += `
                     <div class="word-card">
-                        <strong>${word.bengali}</strong> (${word.transliteration}) - ${word.english}
+                        <strong>${word.bengali}</strong>
+                        <button class="speak-btn" onclick="speakText('${word.bengali}')">🔊</button>
+                        <br>(${word.transliteration}) - ${word.english}
                         <button onclick="practiceCustomWord(${index})" class="practice-btn">Practice</button>
                         <button onclick="removeCustomWord(${index})">Remove</button>
                     </div>
@@ -197,21 +222,18 @@
         document.querySelectorAll('.practice-btn').forEach(btn => {
             btn.classList.remove('practice-active');
         });
-        event.target.classList.add('practice-active');
+        if (event) event.target.classList.add('practice-active');
     }
 
-    // 🔊 SPEAK FUNCTION - FIXED
+    // 🔊 SPEAK FUNCTION
     function speakCurrentWord() {
         const currentWord = document.getElementById('currentWord').innerText;
-        if (!currentWord || currentWord === 'Current Word:') return;
+        if (!currentWord) return;
 
-        const utterance = new SpeechSynthesisUtterance(currentWord);
-        utterance.lang = 'bn-BD';
-        utterance.rate = 0.8;
-        speechSynthesis.speak(utterance);
+        speakText(currentWord);
     }
 
-    // 🎙 RECORDING FUNCTION - FIXED
+    // 🎙 RECORDING FUNCTION
     function startRecording() {
         if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
             alert("Speech recognition not supported in this browser.");
@@ -286,12 +308,13 @@
         }
     }
 
-    // ❓ Ask Questions Section
+    // ❓ IMPROVED QUESTION SYSTEM
     async function askQuestion() {
         const question = document.getElementById('questionInput').value;
         if (!question) return;
 
         document.getElementById('questionAnswer').innerHTML = "🔄 AI is thinking...";
+        document.getElementById('autoAddSection').style.display = 'none';
 
         try {
             const response = await fetch("http://127.0.0.1:5001/ask-question", {
@@ -302,12 +325,19 @@
 
             const data = await response.json();
             if (response.ok) {
+                // Display answer with speech button
                 document.getElementById('questionAnswer').innerHTML = `
                     <div class="chat-message ai-message">
                         <strong>AI Tutor:</strong> ${data.answer}
+                        <button class="speak-btn" onclick="speakText('${data.answer.replace(/'/g, "\\'")}')">🔊</button>
                     </div>
-                    <button onclick="showSaveForm()">💾 Save this to My Words</button>
                 `;
+
+                // 🆕 AUTO-DETECT WORDS TO ADD
+                currentExtractedWords = data.extracted_words || [];
+                if (currentExtractedWords.length > 0) {
+                    showWordsToAdd(currentExtractedWords);
+                }
             } else {
                 document.getElementById('questionAnswer').innerHTML = `❌ Error: ${data.error}`;
             }
@@ -316,33 +346,41 @@
         }
     }
 
+    // 🆕 SHOW WORDS FOR AUTO-ADDING
+    function showWordsToAdd(words) {
+        let html = '';
+        words.forEach((word, index) => {
+            html += `
+                <div class="word-to-add">
+                    <strong>${word.bengali}</strong> (${word.transliteration}) - ${word.english}
+                    <button class="add-confirm" onclick="addExtractedWord(${index})">✅ Add</button>
+                </div>
+            `;
+        });
+        document.getElementById('wordsToAdd').innerHTML = html;
+        document.getElementById('autoAddSection').style.display = 'block';
+    }
+
+    // 🆕 ADD EXTRACTED WORD
+    function addExtractedWord(index) {
+        const word = currentExtractedWords[index];
+        customWords.push(word);
+        localStorage.setItem('customBengaliWords', JSON.stringify(customWords));
+        updateCustomVocabDisplay();
+
+        // Remove from current list
+        currentExtractedWords.splice(index, 1);
+        if (currentExtractedWords.length > 0) {
+            showWordsToAdd(currentExtractedWords);
+        } else {
+            document.getElementById('autoAddSection').style.display = 'none';
+        }
+
+        alert(`Added: ${word.bengali} to your vocabulary!`);
+    }
+
     function setExampleQuestion(question) {
         document.getElementById('questionInput').value = question;
-    }
-
-    function showSaveForm() {
-        document.getElementById('saveVocabulary').style.display = 'block';
-    }
-
-    function saveCustomWord() {
-        const bengali = document.getElementById('customBengali').value;
-        const transliteration = document.getElementById('customTransliteration').value;
-        const english = document.getElementById('customEnglish').value;
-
-        if (bengali && transliteration && english) {
-            customWords.push({
-                bengali: bengali,
-                transliteration: transliteration,
-                english: english
-            });
-            localStorage.setItem('customBengaliWords', JSON.stringify(customWords));
-            updateCustomVocabDisplay();
-            document.getElementById('saveVocabulary').style.display = 'none';
-            document.getElementById('customBengali').value = '';
-            document.getElementById('customTransliteration').value = '';
-            document.getElementById('customEnglish').value = '';
-            alert('Word saved to your vocabulary!');
-        }
     }
 
     function removeCustomWord(index) {
@@ -381,7 +419,16 @@
         const chatHistory = document.getElementById('chatHistory');
         const messageDiv = document.createElement('div');
         messageDiv.className = `chat-message ${sender}-message`;
-        messageDiv.innerHTML = `<strong>${sender === 'user' ? 'You' : 'AI Tutor'}:</strong> ${message}`;
+
+        if (sender === 'ai') {
+            messageDiv.innerHTML = `
+                <strong>AI Tutor:</strong> ${message}
+                <button class="speak-btn" onclick="speakText('${message.replace(/'/g, "\\'")}')">🔊</button>
+            `;
+        } else {
+            messageDiv.innerHTML = `<strong>You:</strong> ${message}`;
+        }
+
         chatHistory.appendChild(messageDiv);
         chatHistory.scrollTop = chatHistory.scrollHeight;
     }
