@@ -23,7 +23,7 @@
 
     // Get Lesson
     document.getElementById("lessonBtn").onclick = async () => {
-      const res = await fetch("http://127.0.0.1:5000/lesson?lang=Bengali");
+      const res = await fetch('http://10.0.1.153:5001/lesson?lang=Bengali');
       const data = await res.json();
       lessonData = data;
       currentIndex = 0;
