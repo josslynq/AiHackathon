@@ -17,7 +17,6 @@ def call_gemini_direct(prompt):
     if not GEMINI_API_KEY:
         raise Exception("No Gemini API key found")
 
-    # Use the available model
     model = "gemini-2.0-flash"
     url = f"https://generativelanguage.googleapis.com/v1/models/{model}:generateContent?key={GEMINI_API_KEY}"
 
@@ -34,27 +33,6 @@ def call_gemini_direct(prompt):
         return result['candidates'][0]['content']['parts'][0]['text']
     else:
         raise Exception(f"Gemini API error: {response.status_code} - {response.text}")
-
-@app.route("/debug-gemini", methods=["GET"])
-def debug_gemini():
-    """Test if Gemini API key works"""
-    test_prompt = "Hello, respond with 'AI is working!' if you can read this."
-
-    try:
-        ai_response = call_gemini_direct(test_prompt)
-        return jsonify({
-            "success": True,
-            "api_key_exists": bool(GEMINI_API_KEY),
-            "api_key_preview": GEMINI_API_KEY[:10] + "..." if GEMINI_API_KEY else "None",
-            "ai_response": ai_response
-        })
-    except Exception as e:
-        return jsonify({
-            "success": False,
-            "api_key_exists": bool(GEMINI_API_KEY),
-            "api_key_preview": GEMINI_API_KEY[:10] + "..." if GEMINI_API_KEY else "None",
-            "error": str(e)
-        })
 
 @app.route("/lesson", methods=["GET"])
 def lesson():
@@ -80,29 +58,24 @@ def analyze_pronunciation():
 
     try:
         prompt = f"""
-        As a Bengali language pronunciation expert, analyze this student's attempt:
+        As a Bengali pronunciation coach, give brief feedback (1-2 sentences max):
 
-        TARGET WORD: {target_word}
-        TRANSLITERATION: {target_transliteration} 
-        MEANING: {target_meaning}
-        STUDENT'S ATTEMPT: "{spoken_text}"
+        Target: {target_word} ({target_transliteration})
+        Student said: "{spoken_text}"
 
-        Provide specific, actionable feedback on pronunciation.
-        Keep it concise (2-3 sentences) and encouraging.
-        Focus on vowel sounds, consonants, and rhythm.
+        Focus on one specific improvement. Keep it very short.
         """
 
         ai_feedback = call_gemini_direct(prompt)
 
         return jsonify({
-            "feedback": f"🤖 AI Feedback: {ai_feedback}",
-            "spoken_text": spoken_text,
-            "ai_used": "Gemini 2.0 Flash"
+            "feedback": ai_feedback,
+            "spoken_text": spoken_text
         })
 
     except Exception as e:
         return jsonify({
-            "feedback": f"⚠️ AI unavailable. You said: {spoken_text}",
+            "feedback": f"You said: {spoken_text}",
             "spoken_text": spoken_text,
             "error": str(e)
         })
@@ -114,19 +87,15 @@ def transliterate():
 
     try:
         prompt = f"""
-        Convert this Bengali text to English transliteration using standard romanization:
-        "{bengali_text}"
-        
-        Provide ONLY the transliteration, no explanations or additional text.
-        Be accurate with Bengali pronunciation rules.
+        Convert to English transliteration: "{bengali_text}"
+        Only output transliteration, no explanations.
         """
 
         transliteration = call_gemini_direct(prompt)
 
         return jsonify({
             "original": bengali_text,
-            "transliteration": transliteration,
-            "ai_used": "Gemini 2.0 Flash"
+            "transliteration": transliteration
         })
 
     except Exception as e:
@@ -144,28 +113,50 @@ def conversation_practice():
 
     try:
         prompt = f"""
-        You are a friendly {language} language tutor. The student said:
-        "{user_message}"
+        You are a Bengali tutor. Student said: "{user_message}"
         
-        Respond naturally in {language} (with English transliteration and translation).
-        Keep it short, educational, and encouraging.
-        
-        Format your response as:
-        [Bengali Text] (transliteration) - [English Translation]
+        Respond in Bengali with transliteration and brief translation.
+        Keep response under 2 sentences. Be concise.
         """
 
         ai_response = call_gemini_direct(prompt)
 
         return jsonify({
             "user_message": user_message,
-            "ai_response": ai_response,
-            "ai_used": "Gemini 2.0 Flash"
+            "ai_response": ai_response
         })
 
     except Exception as e:
         return jsonify({"error": f"Conversation failed: {str(e)}"}), 500
 
+# 🆕 FIXED QUESTION ROUTE - SHORT RESPONSES
+@app.route("/ask-question", methods=["POST"])
+def ask_question():
+    data = request.json
+    question = data.get("question")
+
+    try:
+        prompt = f"""
+        Student asks: "{question}"
+        
+        Give a SHORT answer (2-3 sentences max). 
+        If teaching a phrase, format as:
+        Bengali (transliteration) - English
+        
+        No long explanations. Be direct and concise.
+        """
+
+        answer = call_gemini_direct(prompt)
+
+        return jsonify({
+            "question": question,
+            "answer": answer
+        })
+
+    except Exception as e:
+        return jsonify({"error": f"Question failed: {str(e)}"}), 500
+
 if __name__ == "__main__":
-    print("🚀 Starting Bengali Tutor with Gemini 2.0 Flash...")
+    print("🚀 Starting Fixed Bengali Tutor...")
     print(f"🔑 API Key Loaded: {bool(GEMINI_API_KEY)}")
     app.run(port=5001, debug=True)
