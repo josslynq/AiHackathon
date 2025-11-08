@@ -22,6 +22,9 @@
         .speak-btn { background: none; border: 1px solid #ccc; padding: 5px 10px; margin-left: 10px; border-radius: 3px; cursor: pointer; }
         .word-to-add { background: #e8f5e8; padding: 10px; margin: 5px 0; border-radius: 5px; }
         .add-confirm { background: #4CAF50; color: white; margin-left: 10px; }
+        .message-details { margin: 5px 0; padding: 5px; background: rgba(0,0,0,0.05); border-radius: 3px; font-size: 12px; }
+        .conversation-tip { margin: 8px 0; padding: 8px; background: #e8f5e8; border-left: 3px solid #4CAF50; border-radius: 3px; font-size: 13px; }
+        .follow-up { margin: 8px 0; padding: 8px; background: #e3f2fd; border-left: 3px solid #2196F3; border-radius: 3px; font-size: 13px; }
     </style>
 </head>
 <body>
@@ -75,10 +78,16 @@
 
     <div class="section">
         <h3>Chat with AI Tutor</h3>
-        <div id="chatHistory" style="height: 300px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;">
+        <div id="chatHistory" style="height: 400px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; background: #fafafa;">
             <div class="chat-message ai-message">
-                <strong>AI Tutor:</strong> Hello! I'm your Bengali tutor. You can type or speak to practice conversation!
-                <button class="speak-btn" onclick="speakText('Hello! I\\'m your Bengali tutor. You can type or speak to practice conversation!')">🔊</button>
+                <strong>AI Tutor:</strong> নমস্তে! (Nomoshte!) - Hello!
+                <div class="conversation-tip">
+                    💡 <strong>Tip:</strong> Try responding with "আপনি কেমন আছেন?" (Apni kemon achen?)
+                </div>
+                <div class="follow-up">
+                    ❓ <strong>Let's start:</strong> How are you today?
+                </div>
+                <button class="speak-btn" onclick="speakText('নমস্তে')">🔊</button>
             </div>
         </div>
 
@@ -89,7 +98,7 @@
         </div>
 
         <div style="margin-top: 10px;">
-            <small>Try: "How are you?" or "What's your name?" or speak in Bengali!</small>
+            <small>Try: "How are you?" or speak in Bengali!</small>
         </div>
     </div>
 </div>
@@ -138,20 +147,20 @@
     let customWords = JSON.parse(localStorage.getItem('customBengaliWords')) || [];
     let isRecording = false;
     let currentExtractedWords = [];
-
-    // 🆕 TEXT-TO-SPEECH FUNCTION
-    function speakText(text) {
-        // Extract Bengali text if it exists (text between Bengali characters)
-        const bengaliRegex = /[\u0980-\u09FF]+/g;
-        const bengaliMatches = text.match(bengaliRegex);
-
-        let textToSpeak = text;
-        if (bengaliMatches && bengaliMatches.length > 0) {
-            // Speak the first Bengali phrase found
-            textToSpeak = bengaliMatches[0];
+    let conversationHistory = [
+        {
+            sender: "AI Tutor",
+            text: "নমস্তে! (Nomoshte!) - Hello!",
+            transliteration: "Nomoshte!",
+            translation: "Hello!",
+            tip: "Try responding with 'আপনি কেমন আছেন?' (Apni kemon achen?)",
+            followUp: "How are you today?"
         }
+    ];
 
-        const utterance = new SpeechSynthesisUtterance(textToSpeak);
+    // 🔊 AUDIO FUNCTION
+    function speakText(text) {
+        const utterance = new SpeechSynthesisUtterance(text);
         utterance.lang = 'bn-BD';
         utterance.rate = 0.8;
         speechSynthesis.speak(utterance);
@@ -218,22 +227,18 @@
         document.getElementById('transliterationOutput').innerText = '';
         document.getElementById('basicFeedback').innerText = '';
 
-        // Update practice buttons
         document.querySelectorAll('.practice-btn').forEach(btn => {
             btn.classList.remove('practice-active');
         });
         if (event) event.target.classList.add('practice-active');
     }
 
-    // 🔊 SPEAK FUNCTION
     function speakCurrentWord() {
         const currentWord = document.getElementById('currentWord').innerText;
         if (!currentWord) return;
-
         speakText(currentWord);
     }
 
-    // 🎙 RECORDING FUNCTION
     function startRecording() {
         if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
             alert("Speech recognition not supported in this browser.");
@@ -256,7 +261,6 @@
             document.getElementById('recordBtn').textContent = "Try Saying It 🎙";
             document.getElementById('recordBtn').disabled = false;
 
-            // Get transliteration
             try {
                 const translitResponse = await fetch("http://127.0.0.1:5001/transliterate", {
                     method: "POST",
@@ -269,7 +273,6 @@
                 document.getElementById('transliterationOutput').innerText = `Transliteration: [Error]`;
             }
 
-            // Get AI feedback
             try {
                 const currentWord = document.getElementById('currentWord').innerText;
                 const currentTrans = document.getElementById('currentTransliteration').innerText.replace(/[()]/g, '');
@@ -308,132 +311,159 @@
         }
     }
 
-    // ❓ IMPROVED QUESTION SYSTEM
-    async function askQuestion() {
-        const question = document.getElementById('questionInput').value;
-        if (!question) return;
-
-        document.getElementById('questionAnswer').innerHTML = "🔄 AI is thinking...";
-        document.getElementById('autoAddSection').style.display = 'none';
-
-        try {
-            const response = await fetch("http://127.0.0.1:5001/ask-question", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ question: question })
-            });
-
-            const data = await response.json();
-            if (response.ok) {
-                // Display answer with speech button
-                document.getElementById('questionAnswer').innerHTML = `
-                    <div class="chat-message ai-message">
-                        <strong>AI Tutor:</strong> ${data.answer}
-                        <button class="speak-btn" onclick="speakText('${data.answer.replace(/'/g, "\\'")}')">🔊</button>
-                    </div>
-                `;
-
-                // 🆕 AUTO-DETECT WORDS TO ADD
-                currentExtractedWords = data.extracted_words || [];
-                if (currentExtractedWords.length > 0) {
-                    showWordsToAdd(currentExtractedWords);
-                }
-            } else {
-                document.getElementById('questionAnswer').innerHTML = `❌ Error: ${data.error}`;
-            }
-        } catch (error) {
-            document.getElementById('questionAnswer').innerHTML = `❌ Network error: ${error.message}`;
-        }
-    }
-
-    // 🆕 SHOW WORDS FOR AUTO-ADDING
-    function showWordsToAdd(words) {
-        let html = '';
-        words.forEach((word, index) => {
-            html += `
-                <div class="word-to-add">
-                    <strong>${word.bengali}</strong> (${word.transliteration}) - ${word.english}
-                    <button class="add-confirm" onclick="addExtractedWord(${index})">✅ Add</button>
-                </div>
-            `;
-        });
-        document.getElementById('wordsToAdd').innerHTML = html;
-        document.getElementById('autoAddSection').style.display = 'block';
-    }
-
-    // 🆕 ADD EXTRACTED WORD
-    function addExtractedWord(index) {
-        const word = currentExtractedWords[index];
-        customWords.push(word);
-        localStorage.setItem('customBengaliWords', JSON.stringify(customWords));
-        updateCustomVocabDisplay();
-
-        // Remove from current list
-        currentExtractedWords.splice(index, 1);
-        if (currentExtractedWords.length > 0) {
-            showWordsToAdd(currentExtractedWords);
-        } else {
-            document.getElementById('autoAddSection').style.display = 'none';
-        }
-
-        alert(`Added: ${word.bengali} to your vocabulary!`);
-    }
-
-    function setExampleQuestion(question) {
-        document.getElementById('questionInput').value = question;
-    }
-
-    function removeCustomWord(index) {
-        customWords.splice(index, 1);
-        localStorage.setItem('customBengaliWords', JSON.stringify(customWords));
-        updateCustomVocabDisplay();
-    }
-
-    // 💬 Chat Section Functions
+    // 💬 Enhanced Conversation Functions
     async function sendChatMessage() {
         const message = document.getElementById('chatInput').value;
         if (!message) return;
 
-        addChatMessage('user', message);
+        conversationHistory.push({
+            sender: "You",
+            text: message,
+            transliteration: "Processing...",
+            translation: "Processing..."
+        });
+
+        addChatMessage('user', message, "Processing...", "Processing...");
         document.getElementById('chatInput').value = '';
 
         try {
             const response = await fetch("http://127.0.0.1:5001/conversation-practice", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ message: message, language: "Bengali" })
+                body: JSON.stringify({
+                    message: message,
+                    language: "Bengali",
+                    history: conversationHistory
+                })
             });
 
             const data = await response.json();
             if (response.ok) {
-                addChatMessage('ai', data.ai_response);
+                updateLastUserMessage(data.user_transliteration, data.user_translation);
+
+                const parsedResponse = parseAIResponse(data.ai_response);
+
+                conversationHistory.push({
+                    sender: "AI Tutor",
+                    text: parsedResponse.bengali,
+                    transliteration: parsedResponse.transliteration,
+                    translation: parsedResponse.translation,
+                    tip: parsedResponse.tip,
+                    followUp: parsedResponse.followUp
+                });
+
+                addChatMessage('ai', parsedResponse);
             } else {
-                addChatMessage('ai', `❌ Error: ${data.error}`);
+                addChatMessage('ai', {bengali: `❌ Error: ${data.error}`});
             }
         } catch (error) {
-            addChatMessage('ai', `❌ Network error: ${error.message}`);
+            addChatMessage('ai', {bengali: `❌ Network error: ${error.message}`});
         }
     }
 
-    function addChatMessage(sender, message) {
+    function parseAIResponse(response) {
+        const result = {
+            bengali: response,
+            transliteration: "",
+            translation: "",
+            tip: "",
+            followUp: ""
+        };
+
+        try {
+            // Extract Bengali text (everything before first parenthesis)
+            const bengaliMatch = response.match(/^([^(]+?)(?=\s*\()/);
+            if (bengaliMatch) {
+                result.bengali = bengaliMatch[1].trim();
+            }
+
+            // Extract transliteration (inside parentheses)
+            const transliterationMatch = response.match(/\(([^)]+)\)/);
+            if (transliterationMatch) {
+                result.transliteration = transliterationMatch[1].trim();
+            }
+
+            // Extract translation (after dash, before tip)
+            const translationMatch = response.match(/-\s*([^-💡❓]+?)(?=💡|❓|$)/);
+            if (translationMatch) {
+                result.translation = translationMatch[1].trim();
+            }
+
+            // Extract tip
+            const tipMatch = response.match(/💡 Tip:\s*([^❓]+?)(?=❓|$)/);
+            if (tipMatch) {
+                result.tip = tipMatch[1].trim();
+            }
+
+            // Extract follow-up
+            const followUpMatch = response.match(/❓ Follow-up:\s*(.+)$/);
+            if (followUpMatch) {
+                result.followUp = followUpMatch[1].trim();
+            }
+
+            // If parsing failed, try alternative format
+            if (!result.translation && response.includes('-')) {
+                const parts = response.split('-');
+                if (parts.length > 1) {
+                    result.translation = parts[1].split('💡')[0].split('❓')[0].trim();
+                }
+            }
+
+        } catch (e) {
+            console.error("Error parsing AI response:", e);
+        }
+
+        return result;
+    }
+
+    function updateLastUserMessage(transliteration, translation) {
+        const userMessages = document.querySelectorAll('.user-message');
+        const lastUserMessage = userMessages[userMessages.length - 1];
+
+        if (lastUserMessage) {
+            lastUserMessage.innerHTML = `
+                <strong>You:</strong> ${conversationHistory[conversationHistory.length - 2].text}
+                <div class="message-details">
+                    <small>Transliteration: ${transliteration}</small><br>
+                    <small>Translation: ${translation}</small>
+                </div>
+            `;
+
+            conversationHistory[conversationHistory.length - 2].transliteration = transliteration;
+            conversationHistory[conversationHistory.length - 2].translation = translation;
+        }
+    }
+
+    function addChatMessage(sender, data, transliteration, translation) {
         const chatHistory = document.getElementById('chatHistory');
         const messageDiv = document.createElement('div');
         messageDiv.className = `chat-message ${sender}-message`;
 
         if (sender === 'ai') {
             messageDiv.innerHTML = `
-                <strong>AI Tutor:</strong> ${message}
-                <button class="speak-btn" onclick="speakText('${message.replace(/'/g, "\\'")}')">🔊</button>
+                <strong>AI Tutor:</strong> ${data.bengali}
+                <div class="message-details">
+                    <small>Transliteration: ${data.transliteration || 'Not available'}</small><br>
+                    <small>Translation: ${data.translation || 'Not available'}</small>
+                </div>
+                ${data.tip ? `<div class="conversation-tip">💡 <strong>Tip:</strong> ${data.tip}</div>` : ''}
+                ${data.followUp ? `<div class="follow-up">❓ <strong>Continue:</strong> ${data.followUp}</div>` : ''}
+                <button class="speak-btn" onclick="speakText('${data.bengali.replace(/'/g, "\\'")}')">🔊</button>
             `;
         } else {
-            messageDiv.innerHTML = `<strong>You:</strong> ${message}`;
+            messageDiv.innerHTML = `
+                <strong>You:</strong> ${data}
+                <div class="message-details">
+                    <small>Transliteration: ${transliteration}</small><br>
+                    <small>Translation: ${translation}</small>
+                </div>
+            `;
         }
 
         chatHistory.appendChild(messageDiv);
         chatHistory.scrollTop = chatHistory.scrollHeight;
     }
 
-    // 🎤 Voice Chat Function
     function startVoiceChat() {
         if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
             alert("Speech recognition not supported in this browser.");
@@ -453,12 +483,88 @@
             const spokenText = event.results[0][0].transcript;
             document.getElementById('chatInput').value = spokenText;
             document.getElementById('voiceChatBtn').textContent = "🎤 Voice Message";
-            sendChatMessage(); // Automatically send after speech
+            sendChatMessage();
         };
 
         recognition.onerror = function(event) {
             document.getElementById('voiceChatBtn').textContent = "🎤 Voice Message";
         };
+    }
+
+    // ❓ Question System
+    async function askQuestion() {
+        const question = document.getElementById('questionInput').value;
+        if (!question) return;
+
+        document.getElementById('questionAnswer').innerHTML = "🔄 AI is thinking...";
+        document.getElementById('autoAddSection').style.display = 'none';
+
+        try {
+            const response = await fetch("http://127.0.0.1:5001/ask-question", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ question: question })
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                document.getElementById('questionAnswer').innerHTML = `
+                    <div class="chat-message ai-message">
+                        <strong>AI Tutor:</strong> ${data.answer}
+                        <button class="speak-btn" onclick="speakText('${data.answer.replace(/'/g, "\\'")}')">🔊</button>
+                    </div>
+                `;
+
+                currentExtractedWords = data.extracted_words || [];
+                if (currentExtractedWords.length > 0) {
+                    showWordsToAdd(currentExtractedWords);
+                }
+            } else {
+                document.getElementById('questionAnswer').innerHTML = `❌ Error: ${data.error}`;
+            }
+        } catch (error) {
+            document.getElementById('questionAnswer').innerHTML = `❌ Network error: ${error.message}`;
+        }
+    }
+
+    function showWordsToAdd(words) {
+        let html = '';
+        words.forEach((word, index) => {
+            html += `
+                <div class="word-to-add">
+                    <strong>${word.bengali}</strong> (${word.transliteration}) - ${word.english}
+                    <button class="add-confirm" onclick="addExtractedWord(${index})">✅ Add</button>
+                </div>
+            `;
+        });
+        document.getElementById('wordsToAdd').innerHTML = html;
+        document.getElementById('autoAddSection').style.display = 'block';
+    }
+
+    function addExtractedWord(index) {
+        const word = currentExtractedWords[index];
+        customWords.push(word);
+        localStorage.setItem('customBengaliWords', JSON.stringify(customWords));
+        updateCustomVocabDisplay();
+
+        currentExtractedWords.splice(index, 1);
+        if (currentExtractedWords.length > 0) {
+            showWordsToAdd(currentExtractedWords);
+        } else {
+            document.getElementById('autoAddSection').style.display = 'none';
+        }
+
+        alert(`Added: ${word.bengali} to your vocabulary!`);
+    }
+
+    function setExampleQuestion(question) {
+        document.getElementById('questionInput').value = question;
+    }
+
+    function removeCustomWord(index) {
+        customWords.splice(index, 1);
+        localStorage.setItem('customBengaliWords', JSON.stringify(customWords));
+        updateCustomVocabDisplay();
     }
 
     // Initialize

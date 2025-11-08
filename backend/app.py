@@ -87,8 +87,8 @@ def transliterate():
 
     try:
         prompt = f"""
-        Convert to English transliteration: "{bengali_text}"
-        Only output transliteration, no explanations.
+        Convert this Bengali text to English transliteration: "{bengali_text}"
+        Provide ONLY the transliteration, no explanations.
         """
 
         transliteration = call_gemini_direct(prompt)
@@ -109,27 +109,72 @@ def transliterate():
 def conversation_practice():
     data = request.json
     user_message = data.get("message")
+    conversation_history = data.get("history", [])
     language = data.get("language", "Bengali")
 
     try:
+        # Build conversation context
+        history_text = ""
+        for msg in conversation_history[-4:]:
+            history_text += f"{msg['sender']}: {msg['text']}\n"
+
         prompt = f"""
-        You are a Bengali tutor. Student said: "{user_message}"
+        You are a friendly Bengali language tutor having a conversation with a student.
         
-        Respond in Bengali with transliteration and brief translation.
-        Keep response under 2 sentences. Be concise.
+        Previous conversation:
+        {history_text}
+        
+        Student's latest message: "{user_message}"
+        
+        Your task:
+        1. Respond naturally in Bengali (1-2 sentences)
+        2. Include English transliteration in parentheses
+        3. Include English translation after a dash
+        4. Ask a follow-up question to keep the conversation going
+        5. Add a brief language tip at the end
+        
+        Format your response EXACTLY like this:
+        [Bengali response] (transliteration) - [English translation]
+        💡 Tip: [brief language tip]
+        ❓ Follow-up: [question to continue conversation]
+        
+        Make sure all three parts are present and properly formatted.
         """
 
         ai_response = call_gemini_direct(prompt)
 
+        # 🆕 CLEAN TRANSLITERATION FOR USER MESSAGE
+        user_transliteration = ""
+        user_translation = ""
+        try:
+            # Simple transliteration without explanations
+            translit_prompt = f"""
+            Convert this text to English transliteration: "{user_message}"
+            Only provide the transliteration, no explanations.
+            """
+            user_transliteration = call_gemini_direct(translit_prompt)
+
+            # Simple translation without explanations
+            translate_prompt = f"""
+            Translate this text to English: "{user_message}"
+            Only provide the translation, no explanations.
+            """
+            user_translation = call_gemini_direct(translate_prompt)
+        except Exception as e:
+            print(f"Transliteration/translation error: {e}")
+            user_transliteration = user_message
+            user_translation = user_message
+
         return jsonify({
             "user_message": user_message,
+            "user_transliteration": user_transliteration.strip(),
+            "user_translation": user_translation.strip(),
             "ai_response": ai_response
         })
 
     except Exception as e:
         return jsonify({"error": f"Conversation failed: {str(e)}"}), 500
 
-# 🆕 IMPROVED QUESTION ROUTE - AUTO-DETECT BENGALI REQUESTS
 @app.route("/ask-question", methods=["POST"])
 def ask_question():
     data = request.json
@@ -151,7 +196,7 @@ def ask_question():
 
         answer = call_gemini_direct(prompt)
 
-        # 🆕 AUTO-EXTRACT PHRASES FOR VOCABULARY
+        # Auto-extract phrases for vocabulary
         extract_prompt = f"""
         Extract Bengali vocabulary from this text: "{answer}"
         
@@ -168,12 +213,12 @@ def ask_question():
 
         try:
             extraction_result = call_gemini_direct(extract_prompt)
-            # Clean the response and parse as JSON
             extraction_result = extraction_result.strip()
             if extraction_result.startswith('```json'):
                 extraction_result = extraction_result.replace('```json', '').replace('```', '')
             extracted_words = json.loads(extraction_result)
-        except:
+        except Exception as e:
+            print(f"Word extraction error: {e}")
             extracted_words = []
 
         return jsonify({
@@ -186,6 +231,6 @@ def ask_question():
         return jsonify({"error": f"Question failed: {str(e)}"}), 500
 
 if __name__ == "__main__":
-    print("🚀 Starting Improved Bengali Tutor...")
+    print("🚀 Starting Clean Response Bengali Tutor...")
     print(f"🔑 API Key Loaded: {bool(GEMINI_API_KEY)}")
     app.run(port=5001, debug=True)
