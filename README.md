@@ -47,5 +47,5 @@ The project uses **AI-powered tutoring**, **speech recognition**, and **text-to-
 
 ---
 
-## Project Structure  
+
 
