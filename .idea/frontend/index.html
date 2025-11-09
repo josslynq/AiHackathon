@@ -2,127 +2,1048 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Bengali Language Tutor</title>
+    <title>Bengali AI Tutor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --true-blue: #1a73e8;
+            --light-blue: #42a5f5;
+            --purple: #7e57c2;
+            --dark-blue: #0d47a1;
+            --light-bg: #f8fdff;
+            --white: #ffffff;
+            --transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: var(--light-bg);
+            color: #333;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            cursor: none;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Custom Cursor */
+        .cursor {
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--purple);
+            pointer-events: none;
+            mix-blend-mode: difference;
+            z-index: 9999;
+            transition: transform 0.2s ease;
+        }
+
+        .cursor-follower {
+            position: fixed;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid rgba(122, 87, 194, 0.5);
+            pointer-events: none;
+            z-index: 9998;
+            transition: transform 0.6s ease;
+        }
+
+        /* Header */
+        h1 {
+            text-align: center;
+            margin: 20px 0 30px;
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, var(--true-blue), var(--purple));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            position: relative;
+            display: inline-block;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(to right, var(--true-blue), var(--purple));
+            border-radius: 10px;
+        }
+
+        /* Tabs */
+        .tab-buttons {
+    display: flex;
+    margin-bottom: 30px;
+    background: var(--white);
+    border-radius: 15px;
+    padding: 8px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(66, 165, 245, 0.1);
+}
+
+        .tab-button {
+    flex: 1;
+    padding: 18px 20px;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    font-weight: 500;
+    border-radius: 12px;
+    transition: var(--transition);
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    color: #666;
+}
+
+        .tab-button.active {
+    color: white;
+    transform: translateY(-2px);
+}
+
+        .tab-indicator {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    height: calc(100% - 16px);
+    border-radius: 12px;
+    background: linear-gradient(45deg, var(--true-blue), var(--purple));
+    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    z-index: 0;
+    box-shadow: 0 4px 15px rgba(26, 115, 232, 0.3);
+}.tab-icon {
+    font-size: 1.2rem;
+    transition: var(--transition);
+}
+
+.tab-text {
+    font-weight: 600;
+    transition: var(--transition);
+}
+
+.tab-button:hover:not(.active) {
+    color: var(--true-blue);
+    transform: translateY(-2px);
+}
+
+.tab-button:hover:not(.active) .tab-icon {
+    transform: scale(1.2);
+}
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Sections */
+        .section {
+            margin: 30px 0;
+            padding: 25px;
+            border-radius: 15px;
+            background: var(--white);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(to right, var(--true-blue), var(--purple));
+            transform: scaleX(0);
+            transition: var(--transition);
+        }
+
+        .section:hover::before {
+            transform: scaleX(1);
+        }
+
+        .section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: var(--dark-blue);
+            position: relative;
+            display: inline-block;
+        }
+
+        h2::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 50px;
+            height: 3px;
+            background: var(--light-blue);
+            border-radius: 10px;
+        }
+
+        h3 {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            color: var(--dark-blue);
+        }
+
+        /* Buttons */
+        button {
+            margin: 5px;
+            padding: 12px 20px;
+            cursor: pointer;
+            border: none;
+            border-radius: 50px;
+            font-weight: 500;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, var(--true-blue), var(--light-blue));
+            color: white;
+            box-shadow: 0 5px 15px rgba(26, 115, 232, 0.3);
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, var(--purple), var(--true-blue));
+            transition: var(--transition);
+            z-index: -1;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(26, 115, 232, 0.4);
+        }
+
+        .btn-primary:hover::before {
+            left: 0;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--true-blue);
+            color: var(--true-blue);
+        }
+
+        .btn-outline:hover {
+            background: var(--true-blue);
+            color: white;
+        }
+
+        .voice-btn {
+            background: #ff9800;
+            color: white;
+        }
+
+        .practice-active {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .speak-btn {
+            background: none;
+            border: 1px solid #ccc;
+            padding: 5px 10px;
+            margin-left: 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .speak-btn:hover {
+            background: var(--light-blue);
+            color: white;
+            border-color: var(--light-blue);
+        }
+
+        .small-btn {
+            padding: 8px 15px;
+            font-size: 0.9rem;
+        }
+
+        /* Word Cards */
+        .word-card {
+            background: #f9f9f9;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 10px;
+            transition: var(--transition);
+            border-left: 4px solid var(--light-blue);
+        }
+
+        .word-card:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .word-to-add {
+            background: #e8f5e8;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            border-left: 4px solid #4CAF50;
+        }
+
+        .add-confirm {
+            background: #4CAF50;
+            color: white;
+            margin-left: 10px;
+            padding: 5px 10px;
+            border-radius: 3px;
+        }
+
+        /* Chat Messages */
+        .chat-message {
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 15px;
+            position: relative;
+            animation: messageSlide 0.3s ease;
+        }
+
+        @keyframes messageSlide {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .user-message {
+            background: #e3f2fd;
+            margin-left: 50px;
+            border-bottom-right-radius: 5px;
+        }
+
+        .ai-message {
+            background: #f5f5f5;
+            margin-right: 50px;
+            border-bottom-left-radius: 5px;
+        }
+
+        /* Inputs */
+        input, textarea {
+            padding: 12px 15px;
+            margin: 5px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: var(--transition);
+            width: 300px;
+        }
+
+        input:focus, textarea:focus {
+            border-color: var(--light-blue);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(66, 165, 245, 0.2);
+        }
+
+        /* Word Display */
+        .word-display {
+            text-align: center;
+            padding: 20px;
+            background: rgba(66, 165, 245, 0.05);
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+
+        #currentWord {
+            font-size: 2.5rem;
+            margin: 10px 0;
+            color: var(--dark-blue);
+            font-weight: 600;
+        }
+
+        #currentTransliteration {
+            color: #666;
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+
+        #wordMeaning {
+            color: #888;
+            font-style: italic;
+        }
+
+        /* Feedback Area */
+        .feedback-area {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 10px;
+            border-left: 4px solid var(--purple);
+        }
+
+        #aiFeedback {
+            color: #2c5530;
+            font-style: italic;
+            margin-top: 10px;
+        }
+
+        /* Background Animation */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .bg-animation div {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(66, 165, 245, 0.05);
+            animation: float 20s infinite linear;
+        }
+
+        .bg-animation div:nth-child(1) {
+            width: 80px;
+            height: 80px;
+            top: 20%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .bg-animation div:nth-child(2) {
+            width: 100px;
+            height: 100px;
+            top: 60%;
+            left: 80%;
+            animation-delay: 2s;
+            background: rgba(126, 87, 194, 0.05);
+        }
+
+        .bg-animation div:nth-child(3) {
+            width: 120px;
+            height: 120px;
+            top: 40%;
+            left: 70%;
+            animation-delay: 4s;
+        }
+
+        .bg-animation div:nth-child(4) {
+            width: 60px;
+            height: 60px;
+            top: 80%;
+            left: 30%;
+            animation-delay: 6s;
+            background: rgba(26, 115, 232, 0.05);
+        }
+
+        .bg-animation div:nth-child(5) {
+            width: 90px;
+            height: 90px;
+            top: 10%;
+            left: 60%;
+            animation-delay: 8s;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-1000px) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        /* Chat History */
+        #chatHistory {
+            height: 300px;
+            overflow-y: auto;
+            border: 1px solid #e0e0e0;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.7);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .tab-buttons {
+                flex-direction: column;
+                border-radius: 15px;
+            }
+
+            .tab-indicator {
+                display: none;
+            }
+
+            input, textarea {
+                width: 100%;
+            }
+
+            #currentWord {
+                font-size: 2rem;
+            }
+        }
+    </style>
 </head>
 <body>
-<h2>Learn Bengali (Bangla) 🇧🇩</h2>
+<!-- Custom Cursor -->
+<div class="cursor"></div>
+<div class="cursor-follower"></div>
 
-<button id="lessonBtn">Get Lesson</button>
-<div id="lessonOutput" style="margin-top: 20px;"></div>
+<!-- Background Animation -->
+<div class="bg-animation">
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+</div>
 
-<hr>
-<h3>🎤 Pronunciation Practice</h3>
-<p id="currentWord"></p>
-<button id="speakBtn" disabled>Hear Word 🔊</button>
-<button id="recordBtn" disabled>Try Saying It 🎙</button>
-<p id="feedback"></p>
+<h1>🧠 Bengali AI Tutor</h1>
+
+<!-- Replace this entire tab-buttons div -->
+<div class="tab-buttons">
+    <div class="tab-indicator"></div>
+    <button class="tab-button active" data-tab="learn">
+        <span class="tab-icon"></span>
+        <span class="tab-text">Learn & Memorize</span>
+    </button>
+    <button class="tab-button" data-tab="chat">
+        <span class="tab-icon"></span>
+        <span class="tab-text">AI Conversation</span>
+    </button>
+    <button class="tab-button" data-tab="questions">
+        <span class="tab-icon"></span>
+        <span class="tab-text">Ask Questions</span>
+    </button>
+</div>
+
+<!-- learn & memorize section -->
+<div id="learn" class="tab-content active">
+    <h2>📚 Learn & Memorize Bengali</h2>
+
+    <div class="section">
+        <h3>Default Vocabulary</h3>
+        <button class="btn-primary" onclick="loadDefaultLesson()">Load Common Phrases</button>
+        <div id="defaultVocab"></div>
+    </div>
+
+    <div class="section">
+        <h3>Your Custom Words</h3>
+        <div id="customVocab"></div>
+    </div>
+
+    <div class="section">
+        <h3>🎤 Pronunciation Practice</h3>
+        <div class="word-display">
+            <strong>Current Word:</strong>
+            <div id="currentWord"></div>
+            <div id="currentTransliteration"></div>
+            <div id="wordMeaning"></div>
+        </div>
+
+        <button class="btn-primary" id="speakBtn" onclick="speakCurrentWord()">Hear Word 🔊</button>
+        <button class="btn-outline" id="recordBtn" onclick="startRecording()">Try Saying It 🎙</button>
+        <button class="btn-primary" id="nextBtn" onclick="nextWord()" style="display:none;">Next Word ➡️</button>
+
+        <div class="feedback-area">
+            <div id="transliterationOutput"></div>
+            <div id="aiFeedback"></div>
+            <div id="basicFeedback"></div>
+        </div>
+    </div>
+</div>
+
+<!-- 💬 AI Conversation Section -->
+<div id="chat" class="tab-content">
+    <h2>💬 Practice Conversation</h2>
+
+    <div class="section">
+        <h3>Chat with AI Tutor</h3>
+        <div id="chatHistory">
+            <div class="chat-message ai-message">
+                <strong>AI Tutor:</strong> Hello! I'm your Bengali tutor. You can type or speak to practice conversation!
+                <button class="speak-btn" onclick="speakText('Hello! I\\'m your Bengali tutor. You can type or speak to practice conversation!')">🔊</button>
+            </div>
+        </div>
+
+        <div>
+            <input type="text" id="chatInput" placeholder="Type your message in Bengali or English...">
+            <button class="btn-primary" onclick="sendChatMessage()">Send</button>
+            <button class="voice-btn" id="voiceChatBtn" onclick="startVoiceChat()">🎤 Voice Message</button>
+        </div>
+
+        <div style="margin-top: 10px;">
+            <small>Try: "How are you?" or "What's your name?" or speak in Bengali!</small>
+        </div>
+    </div>
+</div>
+
+<!-- ❓ Ask Questions Section -->
+<div id="questions" class="tab-content">
+    <h2>❓ Ask About Bengali</h2>
+
+    <div class="section">
+        <h3>Ask Questions</h3>
+        <input type="text" id="questionInput" placeholder="Ask: 'How do you say...' or 'When do you use...'">
+        <button class="btn-primary" onclick="askQuestion()">Ask AI</button>
+
+        <div style="margin: 10px 0;">
+            <button class="small-btn btn-outline" onclick="setExampleQuestion('How do you say thank you in Bengali?')">Example 1</button>
+            <button class="small-btn btn-outline" onclick="setExampleQuestion('When do you use formal vs informal speech in Bengali?')">Example 2</button>
+            <button class="small-btn btn-outline" onclick="setExampleQuestion('What is the difference between তুমি and আপনি?')">Example 3</button>
+        </div>
+    </div>
+
+    <div class="section">
+        <h3>💡 AI Answer</h3>
+        <div id="questionAnswer"></div>
+        <div id="autoAddSection" style="display:none; margin-top: 15px;">
+            <h4>💾 Add to Vocabulary?</h4>
+            <div id="wordsToAdd"></div>
+        </div>
+    </div>
+</div>
 
 <script>
+    // Replace the entire tab navigation JavaScript with this:
+document.querySelectorAll('.tab-button').forEach(button => {
+    button.addEventListener('click', function() {
+        const tabName = this.getAttribute('data-tab');
+
+        // Update active tab button
+        document.querySelectorAll('.tab-button').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        this.classList.add('active');
+
+        // Update tab indicator position with smooth animation
+        const indicator = document.querySelector('.tab-indicator');
+        const buttonRect = this.getBoundingClientRect();
+        const containerRect = this.parentElement.getBoundingClientRect();
+
+        indicator.style.width = `${buttonRect.width}px`;
+        indicator.style.left = `${buttonRect.left - containerRect.left}px`;
+
+        // Show active tab content with fade effect
+        document.querySelectorAll('.tab-content').forEach(tab => {
+            tab.classList.remove('active');
+        });
+
+        setTimeout(() => {
+            document.getElementById(tabName).classList.add('active');
+        }, 150);
+    });
+});
+
+// Initialize tab indicator position - add this if not already there
+const activeTab = document.querySelector('.tab-button.active');
+const indicator = document.querySelector('.tab-indicator');
+if (activeTab && indicator) {
+    const buttonRect = activeTab.getBoundingClientRect();
+    const containerRect = activeTab.parentElement.getBoundingClientRect();
+    indicator.style.width = `${buttonRect.width}px`;
+    indicator.style.left = `${buttonRect.left - containerRect.left}px`;
+}
+
+    // Custom Cursor
+    const cursor = document.querySelector('.cursor');
+    const cursorFollower = document.querySelector('.cursor-follower');
+
+    document.addEventListener('mousemove', (e) => {
+        cursor.style.left = e.clientX + 'px';
+        cursor.style.top = e.clientY + 'px';
+
+        setTimeout(() => {
+            cursorFollower.style.left = e.clientX + 'px';
+            cursorFollower.style.top = e.clientY + 'px';
+        }, 100);
+    });
+
+    // Interactive elements cursor effect
+    const interactiveElements = document.querySelectorAll('a, button, input, textarea, .word-card, .section');
+
+    interactiveElements.forEach(element => {
+        element.addEventListener('mouseenter', () => {
+            cursor.style.transform = 'scale(1.5)';
+            cursorFollower.style.transform = 'scale(1.5)';
+        });
+
+        element.addEventListener('mouseleave', () => {
+            cursor.style.transform = 'scale(1)';
+            cursorFollower.style.transform = 'scale(1)';
+        });
+    });
+
+    // Original functionality code
     let lessonData = null;
     let currentIndex = 0;
+    let customWords = JSON.parse(localStorage.getItem('customBengaliWords')) || [];
+    let isRecording = false;
+    let currentExtractedWords = [];
 
-    // Get Lesson
-    document.getElementById("lessonBtn").onclick = async () => {
-      const res = await fetch('http://10.0.1.153:5001/lesson?lang=Bengali');
-      const data = await res.json();
-      lessonData = data;
-      currentIndex = 0;
+    // 🆕 TEXT-TO-SPEECH FUNCTION
+    function speakText(text) {
+        // Extract Bengali text if it exists (text between Bengali characters)
+        const bengaliRegex = /[\u0980-\u09FF]+/g;
+        const bengaliMatches = text.match(bengaliRegex);
 
-      // Display text lesson
-      let html = `<h3>${data.language} Lesson</h3>`;
-      html += "<h4>🗣 Vocabulary</h4><ul>";
-      data.vocab.forEach(word => {
-        html += `<li>${word.bengali} (${word.transliteration}) — ${word.english}</li>`;
-      });
-      html += "</ul>";
-      document.getElementById("lessonOutput").innerHTML = html;
+        let textToSpeak = text;
+        if (bengaliMatches && bengaliMatches.length > 0) {
+            // Speak the first Bengali phrase found
+            textToSpeak = bengaliMatches[0];
+        }
 
-      // Start pronunciation practice
-      if (data.vocab && data.vocab.length > 0) {
-        document.getElementById("currentWord").innerText =
-          `Say this word: ${data.vocab[currentIndex].bengali} (${data.vocab[currentIndex].transliteration})`;
-        document.getElementById("speakBtn").disabled = false;
-        document.getElementById("recordBtn").disabled = false;
-      }
-    };
+        const utterance = new SpeechSynthesisUtterance(textToSpeak);
+        utterance.lang = 'bn-BD';
+        utterance.rate = 0.8;
+        speechSynthesis.speak(utterance);
+    }
 
-    // Hear the correct pronunciation
-    document.getElementById("speakBtn").onclick = () => {
-      if (!lessonData) return;
-      const word = lessonData.vocab[currentIndex].bengali;
-      const u = new SpeechSynthesisUtterance(word);
-      u.lang = "bn-BD";
-      speechSynthesis.speak(u);
-    };
+    // 📚 Learn Section Functions
+    async function loadDefaultLesson() {
+        // Simulate API call for demo purposes
+        // In a real implementation, you would call your actual API
+        try {
+            // Mock data for demonstration
+            lessonData = {
+                vocab: [
+                    { bengali: "ধন্যবাদ", transliteration: "dhonnobad", english: "Thank you" },
+                    { bengali: "নমস্কার", transliteration: "nomoskar", english: "Hello" },
+                    { bengali: "কেমন আছেন?", transliteration: "kemon achen?", english: "How are you?" },
+                    { bengali: "আমার নাম", transliteration: "amar nam", english: "My name is" },
+                    { bengali: "বিদায়", transliteration: "biday", english: "Goodbye" }
+                ]
+            };
+            currentIndex = 0;
 
-    // Record user's attempt
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (SpeechRecognition) {
-      const rec = new SpeechRecognition();
-      rec.lang = "bn-BD";
-      rec.onresult = (e) => {
-        const spoken = e.results[0][0].transcript.trim();
-        const target = lessonData.vocab[currentIndex].bengali;
-        document.getElementById("feedback").innerText = `You said: ${spoken}`;
+            let html = "<h4>Common Bengali Phrases:</h4>";
+            lessonData.vocab.forEach((word, index) => {
+                html += `
+                    <div class="word-card">
+                        <strong>${word.bengali}</strong>
+                        <button class="speak-btn" onclick="speakText('${word.bengali}')">🔊</button>
+                        <br>(${word.transliteration}) - ${word.english}
+                        <button class="btn-outline small-btn" onclick="practiceWord(${index})">Practice This</button>
+                    </div>
+                `;
+            });
+            document.getElementById('defaultVocab').innerHTML = html;
+            updateCustomVocabDisplay();
 
-        // Compare phonetic similarity (very simple)
-        const score = similarity(spoken, target);
-        if (score > 0.8) {
-          document.getElementById("feedback").innerText += "\n✅ Great pronunciation!";
-        } else if (score > 0.5) {
-          document.getElementById("feedback").innerText += "\n⚠️ Close, try again.";
+            // Show first word for practice
+            practiceWord(0);
+        } catch (error) {
+            console.error("Error loading lesson:", error);
+            document.getElementById('defaultVocab').innerHTML = "<p>Error loading vocabulary. Please try again.</p>";
+        }
+    }
+
+    function updateCustomVocabDisplay() {
+        let html = "<h4>Your Saved Words:</h4>";
+        if (customWords.length === 0) {
+            html += "<p>No custom words yet. Ask questions to add some!</p>";
         } else {
-          document.getElementById("feedback").innerText += "\n❌ Keep practicing!";
+            customWords.forEach((word, index) => {
+                html += `
+                    <div class="word-card">
+                        <strong>${word.bengali}</strong>
+                        <button class="speak-btn" onclick="speakText('${word.bengali}')">🔊</button>
+                        <br>(${word.transliteration}) - ${word.english}
+                        <button class="btn-outline small-btn" onclick="practiceCustomWord(${index})">Practice</button>
+                        <button class="small-btn" onclick="removeCustomWord(${index})">Remove</button>
+                    </div>
+                `;
+            });
+        }
+        document.getElementById('customVocab').innerHTML = html;
+    }
+
+    function practiceWord(index) {
+        currentIndex = index;
+        updatePracticeDisplay(lessonData.vocab[index]);
+    }
+
+    function practiceCustomWord(index) {
+        const word = customWords[index];
+        updatePracticeDisplay(word);
+    }
+
+    function updatePracticeDisplay(word) {
+        document.getElementById('currentWord').innerText = word.bengali;
+        document.getElementById('currentTransliteration').innerText = `(${word.transliteration})`;
+        document.getElementById('wordMeaning').innerText = word.english;
+        document.getElementById('nextBtn').style.display = 'none';
+        document.getElementById('aiFeedback').innerText = '';
+        document.getElementById('transliterationOutput').innerText = '';
+        document.getElementById('basicFeedback').innerText = '';
+
+        // Update practice buttons
+        document.querySelectorAll('.practice-btn').forEach(btn => {
+            btn.classList.remove('practice-active');
+        });
+    }
+
+    // 🔊 SPEAK FUNCTION
+    function speakCurrentWord() {
+        const currentWord = document.getElementById('currentWord').innerText;
+        if (!currentWord) return;
+
+        speakText(currentWord);
+    }
+
+    // 🎙 RECORDING FUNCTION
+    function startRecording() {
+        if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+            alert("Speech recognition not supported in this browser.");
+            return;
         }
 
-        // Move to next word
-        currentIndex = (currentIndex + 1) % lessonData.vocab.length;
-        document.getElementById("currentWord").innerText =
-          `Next: ${lessonData.vocab[currentIndex].bengali} (${lessonData.vocab[currentIndex].transliteration})`;
-      };
-      document.getElementById("recordBtn").onclick = () => rec.start();
-    } else {
-      document.getElementById("recordBtn").disabled = true;
-      document.getElementById("feedback").innerText = "Speech recognition not supported in this browser.";
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const recognition = new SpeechRecognition();
+        recognition.lang = 'bn-BD';
+        recognition.continuous = false;
+        recognition.interimResults = false;
+
+        recognition.start();
+        document.getElementById('recordBtn').textContent = "🎙 Listening...";
+        document.getElementById('recordBtn').disabled = true;
+
+        recognition.onresult = async function(event) {
+            const spokenText = event.results[0][0].transcript;
+            document.getElementById('basicFeedback').innerText = `You said: "${spokenText}"`;
+            document.getElementById('recordBtn').textContent = "Try Saying It 🎙";
+            document.getElementById('recordBtn').disabled = false;
+
+            // Mock transliteration for demo
+            document.getElementById('transliterationOutput').innerText = `Transliteration: ${spokenText}`;
+
+            // Mock AI feedback for demo
+            document.getElementById('aiFeedback').innerText = "Good pronunciation! Try to emphasize the first syllable a bit more.";
+
+            document.getElementById('nextBtn').style.display = 'inline-block';
+        };
+
+        recognition.onerror = function(event) {
+            document.getElementById('recordBtn').textContent = "Try Saying It 🎙";
+            document.getElementById('recordBtn').disabled = false;
+            document.getElementById('basicFeedback').innerText = `Error: ${event.error}`;
+        };
     }
 
-    // Helper: simple text similarity
-    function similarity(a, b) {
-      a = a.toLowerCase();
-      b = b.toLowerCase();
-      const longer = a.length > b.length ? a : b;
-      const shorter = a.length > b.length ? b : a;
-      const longerLength = longer.length;
-      if (longerLength === 0) return 1.0;
-      const same = longerLength - editDistance(longer, shorter);
-      return same / longerLength;
-    }
-
-    function editDistance(s1, s2) {
-      s1 = s1.toLowerCase();
-      s2 = s2.toLowerCase();
-      const costs = [];
-      for (let i = 0; i <= s1.length; i++) {
-        let lastValue = i;
-        for (let j = 0; j <= s2.length; j++) {
-          if (i === 0)
-            costs[j] = j;
-          else {
-            if (j > 0) {
-              let newValue = costs[j - 1];
-              if (s1.charAt(i - 1) !== s2.charAt(j - 1))
-                newValue = Math.min(Math.min(newValue, lastValue),
-                  costs[j]) + 1;
-              costs[j - 1] = lastValue;
-              lastValue = newValue;
-            }
-          }
+    function nextWord() {
+        if (lessonData && lessonData.vocab) {
+            currentIndex = (currentIndex + 1) % lessonData.vocab.length;
+            updatePracticeDisplay(lessonData.vocab[currentIndex]);
         }
-        if (i > 0)
-          costs[s2.length] = lastValue;
-      }
-      return costs[s2.length];
     }
+
+    // ❓ IMPROVED QUESTION SYSTEM
+    async function askQuestion() {
+        const question = document.getElementById('questionInput').value;
+        if (!question) return;
+
+        document.getElementById('questionAnswer').innerHTML = "🔄 AI is thinking...";
+        document.getElementById('autoAddSection').style.display = 'none';
+
+        try {
+            // Mock API response for demo
+            setTimeout(() => {
+                const mockResponse = {
+                    answer: "In Bengali, 'thank you' is said as 'ধন্যবাদ' (pronounced 'dhonnobad'). It's used in the same contexts as in English - to express gratitude.",
+                    extracted_words: [
+                        { bengali: "ধন্যবাদ", transliteration: "dhonnobad", english: "Thank you" }
+                    ]
+                };
+
+                // Display answer with speech button
+                document.getElementById('questionAnswer').innerHTML = `
+                    <div class="chat-message ai-message">
+                        <strong>AI Tutor:</strong> ${mockResponse.answer}
+                        <button class="speak-btn" onclick="speakText('${mockResponse.answer.replace(/'/g, "\\'")}')">🔊</button>
+                    </div>
+                `;
+
+                // Auto-detect words to add
+                currentExtractedWords = mockResponse.extracted_words || [];
+                if (currentExtractedWords.length > 0) {
+                    showWordsToAdd(currentExtractedWords);
+                }
+            }, 1500);
+        } catch (error) {
+            document.getElementById('questionAnswer').innerHTML = `❌ Network error: ${error.message}`;
+        }
+    }
+
+    // 🆕 SHOW WORDS FOR AUTO-ADDING
+    function showWordsToAdd(words) {
+        let html = '';
+        words.forEach((word, index) => {
+            html += `
+                <div class="word-to-add">
+                    <strong>${word.bengali}</strong> (${word.transliteration}) - ${word.english}
+                    <button class="add-confirm" onclick="addExtractedWord(${index})">✅ Add</button>
+                </div>
+            `;
+        });
+        document.getElementById('wordsToAdd').innerHTML = html;
+        document.getElementById('autoAddSection').style.display = 'block';
+    }
+
+    // 🆕 ADD EXTRACTED WORD
+    function addExtractedWord(index) {
+        const word = currentExtractedWords[index];
+        customWords.push(word);
+        localStorage.setItem('customBengaliWords', JSON.stringify(customWords));
+        updateCustomVocabDisplay();
+
+        // Remove from current list
+        currentExtractedWords.splice(index, 1);
+        if (currentExtractedWords.length > 0) {
+            showWordsToAdd(currentExtractedWords);
+        } else {
+            document.getElementById('autoAddSection').style.display = 'none';
+        }
+
+        alert(`Added: ${word.bengali} to your vocabulary!`);
+    }
+
+    function setExampleQuestion(question) {
+        document.getElementById('questionInput').value = question;
+    }
+
+    function removeCustomWord(index) {
+        customWords.splice(index, 1);
+        localStorage.setItem('customBengaliWords', JSON.stringify(customWords));
+        updateCustomVocabDisplay();
+    }
+
+    // 💬 Chat Section Functions
+    async function sendChatMessage() {
+        const message = document.getElementById('chatInput').value;
+        if (!message) return;
+
+        addChatMessage('user', message);
+        document.getElementById('chatInput').value = '';
+
+        try {
+            // Mock API response for demo
+            setTimeout(() => {
+                const responses = [
+                    "That's great! How can I help you practice Bengali today?",
+                    "I understand. Let's practice some common Bengali phrases.",
+                    "Your pronunciation is improving! Keep practicing.",
+                    "Try saying that again with more emphasis on the first syllable."
+                ];
+                const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+
+                addChatMessage('ai', randomResponse);
+            }, 1000);
+        } catch (error) {
+            addChatMessage('ai', `❌ Network error: ${error.message}`);
+        }
+    }
+
+    function addChatMessage(sender, message) {
+        const chatHistory = document.getElementById('chatHistory');
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `chat-message ${sender}-message`;
+
+        if (sender === 'ai') {
+            messageDiv.innerHTML = `
+                <strong>AI Tutor:</strong> ${message}
+                <button class="speak-btn" onclick="speakText('${message.replace(/'/g, "\\'")}')">🔊</button>
+            `;
+        } else {
+            messageDiv.innerHTML = `<strong>You:</strong> ${message}`;
+        }
+
+        chatHistory.appendChild(messageDiv);
+        chatHistory.scrollTop = chatHistory.scrollHeight;
+    }
+
+    // 🎤 Voice Chat Function
+    function startVoiceChat() {
+        if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+            alert("Speech recognition not supported in this browser.");
+            return;
+        }
+
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const recognition = new SpeechRecognition();
+        recognition.lang = 'bn-BD';
+        recognition.continuous = false;
+        recognition.interimResults = false;
+
+        document.getElementById('voiceChatBtn').textContent = "🎤 Listening...";
+        recognition.start();
+
+        recognition.onresult = function(event) {
+            const spokenText = event.results[0][0].transcript;
+            document.getElementById('chatInput').value = spokenText;
+            document.getElementById('voiceChatBtn').textContent = "🎤 Voice Message";
+            sendChatMessage(); // Automatically send after speech
+        };
+
+        recognition.onerror = function(event) {
+            document.getElementById('voiceChatBtn').textContent = "🎤 Voice Message";
+        };
+    }
+
+    // Initialize
+    updateCustomVocabDisplay();
+
+    // Load default lesson on page load for demo
+    window.onload = function() {
+        setTimeout(loadDefaultLesson, 500);
+    };
 </script>
 </body>
 </html>
