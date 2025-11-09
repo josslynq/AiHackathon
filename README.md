@@ -12,7 +12,7 @@
 **Vernacular** is an interactive web-based language learning platform that leverages **AI to preserve and teach underrepresented languages**.  
 Our first implementation focuses on Bengali, integrating conversation, pronunciation, and vocabulary tools into a single immersive experience.  
 
-The project uses AI-powered tutoring, speech recognition, and text-to-speech to create an engaging, accessible learning journey with the long-term goal of expanding to other languages like Punjabi, Urdu, Twi and Swahili.  
+The project uses AI-powered tutoring, speech recognition, and text-to-speech to create an engaging, accessible learning journey with the long-term goal of expanding to other languages like Punjabi, Urdu, Twi, and Swahili.  
 
 ---
 
@@ -46,7 +46,7 @@ The project uses AI-powered tutoring, speech recognition, and text-to-speech to 
 | **AI/ML** | Google Gemini API for natural language understanding |
 | **Speech/Audio** | Web Speech API (Text-To-Speech + Speech Recognition) |
 
----
+
 
 
 
