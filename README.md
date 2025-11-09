@@ -1,4 +1,4 @@
-# 🌍 Vernacular — The AI Tutor for Underrepresented Languages  
+# 🌍 Vernacular: The AI Tutor for Underrepresented Languages  
 
 > *"The best language learning web platform for underrepresented languages."*  
 
