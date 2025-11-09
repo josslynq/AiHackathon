@@ -1,5 +1,5 @@
 # Vernacular
-# The AI Tutor for Underrepresented Languages  
+**The AI Tutor for Underrepresented Languages**
 
 > *"The best language learning web platform for underrepresented languages."*  
 
