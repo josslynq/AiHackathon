@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns="http://www.w3.org/1999/html">
 <head>
     <meta charset="UTF-8">
     <title>Bengali AI Tutor</title>
@@ -28,33 +28,8 @@
             max-width: 1000px;
             margin: 0 auto;
             padding: 20px;
-            cursor: none;
             position: relative;
             overflow-x: hidden;
-        }
-
-        /* Custom Cursor */
-        .cursor {
-            position: fixed;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: var(--purple);
-            pointer-events: none;
-            mix-blend-mode: difference;
-            z-index: 9999;
-            transition: transform 0.2s ease;
-        }
-
-        .cursor-follower {
-            position: fixed;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            border: 2px solid rgba(122, 87, 194, 0.5);
-            pointer-events: none;
-            z-index: 9998;
-            transition: transform 0.6s ease;
         }
 
         /* Header */
@@ -86,68 +61,56 @@
 
         /* Tabs */
         .tab-buttons {
-    display: flex;
-    margin-bottom: 30px;
-    background: var(--white);
-    border-radius: 15px;
-    padding: 8px;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-    position: relative;
-    overflow: hidden;
-    border: 1px solid rgba(66, 165, 245, 0.1);
-}
+            display: flex;
+            margin-bottom: 30px;
+            background: var(--white);
+            border-radius: 15px;
+            padding: 8px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(66, 165, 245, 0.1);
+        }
 
         .tab-button {
-    flex: 1;
-    padding: 18px 20px;
-    cursor: pointer;
-    border: none;
-    background: transparent;
-    font-weight: 500;
-    border-radius: 12px;
-    transition: var(--transition);
-    position: relative;
-    z-index: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    color: #666;
-}
+            flex: 1;
+            padding: 18px 20px;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            font-weight: 500;
+            border-radius: 12px;
+            transition: var(--transition);
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            color: #666;
+        }
 
         .tab-button.active {
-    color: white;
-    transform: translateY(-2px);
-}
+            color: white;
+            transform: translateY(-2px);
+        }
 
         .tab-indicator {
-    position: absolute;
-    top: 8px;
-    left: 8px;
-    height: calc(100% - 16px);
-    border-radius: 12px;
-    background: linear-gradient(45deg, var(--true-blue), var(--purple));
-    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-    z-index: 0;
-    box-shadow: 0 4px 15px rgba(26, 115, 232, 0.3);
-}.tab-icon {
-    font-size: 1.2rem;
-    transition: var(--transition);
-}
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            height: calc(100% - 16px);
+            border-radius: 12px;
+            background: linear-gradient(45deg, var(--true-blue), var(--purple));
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            z-index: 0;
+            box-shadow: 0 4px 15px rgba(26, 115, 232, 0.3);
+        }
 
-.tab-text {
-    font-weight: 600;
-    transition: var(--transition);
-}
-
-.tab-button:hover:not(.active) {
-    color: var(--true-blue);
-    transform: translateY(-2px);
-}
-
-.tab-button:hover:not(.active) .tab-icon {
-    transform: scale(1.2);
-}
+        .tab-button:hover:not(.active) {
+            color: var(--true-blue);
+            transform: translateY(-2px);
+        }
 
         .tab-content {
             display: none;
@@ -503,6 +466,33 @@
             background: rgba(255, 255, 255, 0.7);
         }
 
+        /* Your custom styles */
+        .message-details {
+            margin: 5px 0;
+            padding: 5px;
+            background: rgba(0,0,0,0.05);
+            border-radius: 3px;
+            font-size: 12px;
+        }
+
+        .conversation-tip {
+            margin: 8px 0;
+            padding: 8px;
+            background: #e8f5e8;
+            border-left: 3px solid #4CAF50;
+            border-radius: 3px;
+            font-size: 13px;
+        }
+
+        .follow-up {
+            margin: 8px 0;
+            padding: 8px;
+            background: #e3f2fd;
+            border-left: 3px solid #2196F3;
+            border-radius: 3px;
+            font-size: 13px;
+        }
+
         /* Responsive Design */
         @media (max-width: 768px) {
             body {
@@ -533,10 +523,6 @@
     </style>
 </head>
 <body>
-<!-- Custom Cursor -->
-<div class="cursor"></div>
-<div class="cursor-follower"></div>
-
 <!-- Background Animation -->
 <div class="bg-animation">
     <div></div>
@@ -548,24 +534,21 @@
 
 <h1>🧠 Bengali AI Tutor</h1>
 
-<!-- Replace this entire tab-buttons div -->
+<!-- Tab Buttons -->
 <div class="tab-buttons">
     <div class="tab-indicator"></div>
     <button class="tab-button active" data-tab="learn">
-        <span class="tab-icon"></span>
-        <span class="tab-text">Learn & Memorize</span>
+        <span class="tab-text">📚 Learn & Memorize</span>
     </button>
     <button class="tab-button" data-tab="chat">
-        <span class="tab-icon"></span>
-        <span class="tab-text">AI Conversation</span>
+        <span class="tab-text">💬 AI Conversation</span>
     </button>
     <button class="tab-button" data-tab="questions">
-        <span class="tab-icon"></span>
-        <span class="tab-text">Ask Questions</span>
+        <span class="tab-text">❓ Ask Questions</span>
     </button>
 </div>
 
-<!-- learn & memorize section -->
+<!-- 📚 Learn & Memorize Section -->
 <div id="learn" class="tab-content active">
     <h2>📚 Learn & Memorize Bengali</h2>
 
@@ -609,8 +592,14 @@
         <h3>Chat with AI Tutor</h3>
         <div id="chatHistory">
             <div class="chat-message ai-message">
-                <strong>AI Tutor:</strong> Hello! I'm your Bengali tutor. You can type or speak to practice conversation!
-                <button class="speak-btn" onclick="speakText('Hello! I\\'m your Bengali tutor. You can type or speak to practice conversation!')">🔊</button>
+                <strong>AI Tutor:</strong> নমস্তে! (Nomoshte!) - Hello!
+                <div class="conversation-tip">
+                    💡 <strong>Tip:</strong> Try responding with "আপনি কেমন আছেন?" (Apni kemon achen?)
+                </div>
+                <div class="follow-up">
+                    ❓ <strong>Let's start:</strong> How are you today?
+                </div>
+                <button class="speak-btn" onclick="speakText('নমস্তে')">🔊</button>
             </div>
         </div>
 
@@ -621,7 +610,7 @@
         </div>
 
         <div style="margin-top: 10px;">
-            <small>Try: "How are you?" or "What's your name?" or speak in Bengali!</small>
+            <small>Try: "How are you?" or speak in Bengali!</small>
         </div>
     </div>
 </div>
@@ -651,97 +640,67 @@
         </div>
     </div>
 </div>
-
 <script>
-    // Replace the entire tab navigation JavaScript with this:
-document.querySelectorAll('.tab-button').forEach(button => {
-    button.addEventListener('click', function() {
-        const tabName = this.getAttribute('data-tab');
+    // Tab navigation
+    document.querySelectorAll('.tab-button').forEach(button => {
+        button.addEventListener('click', function() {
+            const tabName = this.getAttribute('data-tab');
 
-        // Update active tab button
-        document.querySelectorAll('.tab-button').forEach(btn => {
-            btn.classList.remove('active');
+            // Update active tab button
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            this.classList.add('active');
+
+            // Update tab indicator position with smooth animation
+            const indicator = document.querySelector('.tab-indicator');
+            const buttonRect = this.getBoundingClientRect();
+            const containerRect = this.parentElement.getBoundingClientRect();
+
+            indicator.style.width = `${buttonRect.width}px`;
+            indicator.style.left = `${buttonRect.left - containerRect.left}px`;
+
+            // Show active tab content with fade effect
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            setTimeout(() => {
+                document.getElementById(tabName).classList.add('active');
+            }, 150);
         });
-        this.classList.add('active');
+    });
 
-        // Update tab indicator position with smooth animation
-        const indicator = document.querySelector('.tab-indicator');
-        const buttonRect = this.getBoundingClientRect();
-        const containerRect = this.parentElement.getBoundingClientRect();
-
+    // Initialize tab indicator position
+    const activeTab = document.querySelector('.tab-button.active');
+    const indicator = document.querySelector('.tab-indicator');
+    if (activeTab && indicator) {
+        const buttonRect = activeTab.getBoundingClientRect();
+        const containerRect = activeTab.parentElement.getBoundingClientRect();
         indicator.style.width = `${buttonRect.width}px`;
         indicator.style.left = `${buttonRect.left - containerRect.left}px`;
+    }
 
-        // Show active tab content with fade effect
-        document.querySelectorAll('.tab-content').forEach(tab => {
-            tab.classList.remove('active');
-        });
-
-        setTimeout(() => {
-            document.getElementById(tabName).classList.add('active');
-        }, 150);
-    });
-});
-
-// Initialize tab indicator position - add this if not already there
-const activeTab = document.querySelector('.tab-button.active');
-const indicator = document.querySelector('.tab-indicator');
-if (activeTab && indicator) {
-    const buttonRect = activeTab.getBoundingClientRect();
-    const containerRect = activeTab.parentElement.getBoundingClientRect();
-    indicator.style.width = `${buttonRect.width}px`;
-    indicator.style.left = `${buttonRect.left - containerRect.left}px`;
-}
-
-    // Custom Cursor
-    const cursor = document.querySelector('.cursor');
-    const cursorFollower = document.querySelector('.cursor-follower');
-
-    document.addEventListener('mousemove', (e) => {
-        cursor.style.left = e.clientX + 'px';
-        cursor.style.top = e.clientY + 'px';
-
-        setTimeout(() => {
-            cursorFollower.style.left = e.clientX + 'px';
-            cursorFollower.style.top = e.clientY + 'px';
-        }, 100);
-    });
-
-    // Interactive elements cursor effect
-    const interactiveElements = document.querySelectorAll('a, button, input, textarea, .word-card, .section');
-
-    interactiveElements.forEach(element => {
-        element.addEventListener('mouseenter', () => {
-            cursor.style.transform = 'scale(1.5)';
-            cursorFollower.style.transform = 'scale(1.5)';
-        });
-
-        element.addEventListener('mouseleave', () => {
-            cursor.style.transform = 'scale(1)';
-            cursorFollower.style.transform = 'scale(1)';
-        });
-    });
-
-    // Original functionality code
+    // Application functionality
     let lessonData = null;
     let currentIndex = 0;
     let customWords = JSON.parse(localStorage.getItem('customBengaliWords')) || [];
     let isRecording = false;
     let currentExtractedWords = [];
-
-    // 🆕 TEXT-TO-SPEECH FUNCTION
-    function speakText(text) {
-        // Extract Bengali text if it exists (text between Bengali characters)
-        const bengaliRegex = /[\u0980-\u09FF]+/g;
-        const bengaliMatches = text.match(bengaliRegex);
-
-        let textToSpeak = text;
-        if (bengaliMatches && bengaliMatches.length > 0) {
-            // Speak the first Bengali phrase found
-            textToSpeak = bengaliMatches[0];
+    let conversationHistory = [
+        {
+            sender: "AI Tutor",
+            text: "নমস্তে! (Nomoshte!) - Hello!",
+            transliteration: "Nomoshte!",
+            translation: "Hello!",
+            tip: "Try responding with 'আপনি কেমন আছেন?' (Apni kemon achen?)",
+            followUp: "How are you today?"
         }
+    ];
 
-        const utterance = new SpeechSynthesisUtterance(textToSpeak);
+    // 🔊 AUDIO FUNCTION
+    function speakText(text) {
+        const utterance = new SpeechSynthesisUtterance(text);
         utterance.lang = 'bn-BD';
         utterance.rate = 0.8;
         speechSynthesis.speak(utterance);
@@ -749,41 +708,24 @@ if (activeTab && indicator) {
 
     // 📚 Learn Section Functions
     async function loadDefaultLesson() {
-        // Simulate API call for demo purposes
-        // In a real implementation, you would call your actual API
-        try {
-            // Mock data for demonstration
-            lessonData = {
-                vocab: [
-                    { bengali: "ধন্যবাদ", transliteration: "dhonnobad", english: "Thank you" },
-                    { bengali: "নমস্কার", transliteration: "nomoskar", english: "Hello" },
-                    { bengali: "কেমন আছেন?", transliteration: "kemon achen?", english: "How are you?" },
-                    { bengali: "আমার নাম", transliteration: "amar nam", english: "My name is" },
-                    { bengali: "বিদায়", transliteration: "biday", english: "Goodbye" }
-                ]
-            };
-            currentIndex = 0;
+        const res = await fetch("http://127.0.0.1:5001/lesson?lang=Bengali");
+        const data = await res.json();
+        lessonData = data;
+        currentIndex = 0;
 
-            let html = "<h4>Common Bengali Phrases:</h4>";
-            lessonData.vocab.forEach((word, index) => {
-                html += `
-                    <div class="word-card">
-                        <strong>${word.bengali}</strong>
-                        <button class="speak-btn" onclick="speakText('${word.bengali}')">🔊</button>
-                        <br>(${word.transliteration}) - ${word.english}
-                        <button class="btn-outline small-btn" onclick="practiceWord(${index})">Practice This</button>
-                    </div>
-                `;
-            });
-            document.getElementById('defaultVocab').innerHTML = html;
-            updateCustomVocabDisplay();
-
-            // Show first word for practice
-            practiceWord(0);
-        } catch (error) {
-            console.error("Error loading lesson:", error);
-            document.getElementById('defaultVocab').innerHTML = "<p>Error loading vocabulary. Please try again.</p>";
-        }
+        let html = "<h4>Common Bengali Phrases:</h4>";
+        data.vocab.forEach((word, index) => {
+            html += `
+            <div class="word-card">
+                <strong>${word.bengali}</strong>
+                <button class="speak-btn" onclick="speakText('${word.bengali}')">🔊</button>
+                <br>(${word.transliteration}) - ${word.english}
+                <button class="btn-outline small-btn" onclick="practiceWord(${index})">Practice This</button>
+            </div>
+        `;
+        });
+        document.getElementById('defaultVocab').innerHTML = html;
+        updateCustomVocabDisplay();
     }
 
     function updateCustomVocabDisplay() {
@@ -793,14 +735,14 @@ if (activeTab && indicator) {
         } else {
             customWords.forEach((word, index) => {
                 html += `
-                    <div class="word-card">
-                        <strong>${word.bengali}</strong>
-                        <button class="speak-btn" onclick="speakText('${word.bengali}')">🔊</button>
-                        <br>(${word.transliteration}) - ${word.english}
-                        <button class="btn-outline small-btn" onclick="practiceCustomWord(${index})">Practice</button>
-                        <button class="small-btn" onclick="removeCustomWord(${index})">Remove</button>
-                    </div>
-                `;
+                <div class="word-card">
+                    <strong>${word.bengali}</strong>
+                    <button class="speak-btn" onclick="speakText('${word.bengali}')">🔊</button>
+                    <br>(${word.transliteration}) - ${word.english}
+                    <button class="btn-outline small-btn" onclick="practiceCustomWord(${index})">Practice</button>
+                    <button class="small-btn" onclick="removeCustomWord(${index})">Remove</button>
+                </div>
+            `;
             });
         }
         document.getElementById('customVocab').innerHTML = html;
@@ -825,21 +767,18 @@ if (activeTab && indicator) {
         document.getElementById('transliterationOutput').innerText = '';
         document.getElementById('basicFeedback').innerText = '';
 
-        // Update practice buttons
         document.querySelectorAll('.practice-btn').forEach(btn => {
             btn.classList.remove('practice-active');
         });
+        if (event) event.target.classList.add('practice-active');
     }
 
-    // 🔊 SPEAK FUNCTION
     function speakCurrentWord() {
         const currentWord = document.getElementById('currentWord').innerText;
         if (!currentWord) return;
-
         speakText(currentWord);
     }
 
-    // 🎙 RECORDING FUNCTION
     function startRecording() {
         if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
             alert("Speech recognition not supported in this browser.");
@@ -862,11 +801,38 @@ if (activeTab && indicator) {
             document.getElementById('recordBtn').textContent = "Try Saying It 🎙";
             document.getElementById('recordBtn').disabled = false;
 
-            // Mock transliteration for demo
-            document.getElementById('transliterationOutput').innerText = `Transliteration: ${spokenText}`;
+            try {
+                const translitResponse = await fetch("http://127.0.0.1:5001/transliterate", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ bengali_text: spokenText })
+                });
+                const translitData = await translitResponse.json();
+                document.getElementById('transliterationOutput').innerText = `Transliteration: ${translitData.transliteration}`;
+            } catch (e) {
+                document.getElementById('transliterationOutput').innerText = `Transliteration: [Error]`;
+            }
 
-            // Mock AI feedback for demo
-            document.getElementById('aiFeedback').innerText = "Good pronunciation! Try to emphasize the first syllable a bit more.";
+            try {
+                const currentWord = document.getElementById('currentWord').innerText;
+                const currentTrans = document.getElementById('currentTransliteration').innerText.replace(/[()]/g, '');
+                const currentMeaning = document.getElementById('wordMeaning').innerText;
+
+                const analysisResponse = await fetch("http://127.0.0.1:5001/analyze-pronunciation", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        spoken_text: spokenText,
+                        target_word: currentWord,
+                        target_transliteration: currentTrans,
+                        target_meaning: currentMeaning
+                    })
+                });
+                const analysisData = await analysisResponse.json();
+                document.getElementById('aiFeedback').innerText = analysisData.feedback;
+            } catch (e) {
+                document.getElementById('aiFeedback').innerText = "Error getting feedback";
+            }
 
             document.getElementById('nextBtn').style.display = 'inline-block';
         };
@@ -885,7 +851,187 @@ if (activeTab && indicator) {
         }
     }
 
-    // ❓ IMPROVED QUESTION SYSTEM
+    // 💬 Enhanced Conversation Functions
+    async function sendChatMessage() {
+        const message = document.getElementById('chatInput').value;
+        if (!message) return;
+
+        conversationHistory.push({
+            sender: "You",
+            text: message,
+            transliteration: "Processing...",
+            translation: "Processing..."
+        });
+
+        addChatMessage('user', message, "Processing...", "Processing...");
+        document.getElementById('chatInput').value = '';
+
+        try {
+            const response = await fetch("http://127.0.0.1:5001/conversation-practice", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    message: message,
+                    language: "Bengali",
+                    history: conversationHistory
+                })
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                updateLastUserMessage(data.user_transliteration, data.user_translation);
+
+                const parsedResponse = parseAIResponse(data.ai_response);
+
+                conversationHistory.push({
+                    sender: "AI Tutor",
+                    text: parsedResponse.bengali,
+                    transliteration: parsedResponse.transliteration,
+                    translation: parsedResponse.translation,
+                    tip: parsedResponse.tip,
+                    followUp: parsedResponse.followUp
+                });
+
+                addChatMessage('ai', parsedResponse);
+            } else {
+                addChatMessage('ai', {bengali: `❌ Error: ${data.error}`});
+            }
+        } catch (error) {
+            addChatMessage('ai', {bengali: `❌ Network error: ${error.message}`});
+        }
+    }
+
+    function parseAIResponse(response) {
+        const result = {
+            bengali: response,
+            transliteration: "",
+            translation: "",
+            tip: "",
+            followUp: ""
+        };
+
+        try {
+            // Extract Bengali text (everything before first parenthesis)
+            const bengaliMatch = response.match(/^([^(]+?)(?=\s*\()/);
+            if (bengaliMatch) {
+                result.bengali = bengaliMatch[1].trim();
+            }
+
+            // Extract transliteration (inside parentheses)
+            const transliterationMatch = response.match(/\(([^)]+)\)/);
+            if (transliterationMatch) {
+                result.transliteration = transliterationMatch[1].trim();
+            }
+
+            // Extract translation (after dash, before tip)
+            const translationMatch = response.match(/-\s*([^-💡❓]+?)(?=💡|❓|$)/);
+            if (translationMatch) {
+                result.translation = translationMatch[1].trim();
+            }
+
+            // Extract tip
+            const tipMatch = response.match(/💡 Tip:\s*([^❓]+?)(?=❓|$)/);
+            if (tipMatch) {
+                result.tip = tipMatch[1].trim();
+            }
+
+            // Extract follow-up
+            const followUpMatch = response.match(/❓ Follow-up:\s*(.+)$/);
+            if (followUpMatch) {
+                result.followUp = followUpMatch[1].trim();
+            }
+
+            // If parsing failed, try alternative format
+            if (!result.translation && response.includes('-')) {
+                const parts = response.split('-');
+                if (parts.length > 1) {
+                    result.translation = parts[1].split('💡')[0].split('❓')[0].trim();
+                }
+            }
+
+        } catch (e) {
+            console.error("Error parsing AI response:", e);
+        }
+
+        return result;
+    }
+
+    function updateLastUserMessage(transliteration, translation) {
+        const userMessages = document.querySelectorAll('.user-message');
+        const lastUserMessage = userMessages[userMessages.length - 1];
+
+        if (lastUserMessage) {
+            lastUserMessage.innerHTML = `
+            <strong>You:</strong> ${conversationHistory[conversationHistory.length - 2].text}
+            <div class="message-details">
+                <small>Transliteration: ${transliteration}</small><br>
+                <small>Translation: ${translation}</small>
+            </div>
+        `;
+
+            conversationHistory[conversationHistory.length - 2].transliteration = transliteration;
+            conversationHistory[conversationHistory.length - 2].translation = translation;
+        }
+    }
+
+    function addChatMessage(sender, data, transliteration, translation) {
+        const chatHistory = document.getElementById('chatHistory');
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `chat-message ${sender}-message`;
+
+        if (sender === 'ai') {
+            messageDiv.innerHTML = `
+            <strong>AI Tutor:</strong> ${data.bengali}
+            <div class="message-details">
+                <small>Transliteration: ${data.transliteration || 'Not available'}</small><br>
+                <small>Translation: ${data.translation || 'Not available'}</small>
+            </div>
+            ${data.tip ? `<div class="conversation-tip">💡 <strong>Tip:</strong> ${data.tip}</div>` : ''}
+            ${data.followUp ? `<div class="follow-up">❓ <strong>Continue:</strong> ${data.followUp}</div>` : ''}
+            <button class="speak-btn" onclick="speakText('${data.bengali.replace(/'/g, "\\'")}')">🔊</button>
+        `;
+        } else {
+            messageDiv.innerHTML = `
+            <strong>You:</strong> ${data}
+            <div class="message-details">
+                <small>Transliteration: ${transliteration}</small><br>
+                <small>Translation: ${translation}</small>
+            </div>
+        `;
+        }
+
+        chatHistory.appendChild(messageDiv);
+        chatHistory.scrollTop = chatHistory.scrollHeight;
+    }
+
+    function startVoiceChat() {
+        if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+            alert("Speech recognition not supported in this browser.");
+            return;
+        }
+
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const recognition = new SpeechRecognition();
+        recognition.lang = 'bn-BD';
+        recognition.continuous = false;
+        recognition.interimResults = false;
+
+        document.getElementById('voiceChatBtn').textContent = "🎤 Listening...";
+        recognition.start();
+
+        recognition.onresult = function(event) {
+            const spokenText = event.results[0][0].transcript;
+            document.getElementById('chatInput').value = spokenText;
+            document.getElementById('voiceChatBtn').textContent = "🎤 Voice Message";
+            sendChatMessage();
+        };
+
+        recognition.onerror = function(event) {
+            document.getElementById('voiceChatBtn').textContent = "🎤 Voice Message";
+        };
+    }
+
+    // ❓ Question System
     async function askQuestion() {
         const question = document.getElementById('questionInput').value;
         if (!question) return;
@@ -894,57 +1040,53 @@ if (activeTab && indicator) {
         document.getElementById('autoAddSection').style.display = 'none';
 
         try {
-            // Mock API response for demo
-            setTimeout(() => {
-                const mockResponse = {
-                    answer: "In Bengali, 'thank you' is said as 'ধন্যবাদ' (pronounced 'dhonnobad'). It's used in the same contexts as in English - to express gratitude.",
-                    extracted_words: [
-                        { bengali: "ধন্যবাদ", transliteration: "dhonnobad", english: "Thank you" }
-                    ]
-                };
+            const response = await fetch("http://127.0.0.1:5001/ask-question", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ question: question })
+            });
 
-                // Display answer with speech button
+            const data = await response.json();
+            if (response.ok) {
                 document.getElementById('questionAnswer').innerHTML = `
-                    <div class="chat-message ai-message">
-                        <strong>AI Tutor:</strong> ${mockResponse.answer}
-                        <button class="speak-btn" onclick="speakText('${mockResponse.answer.replace(/'/g, "\\'")}')">🔊</button>
-                    </div>
-                `;
+                <div class="chat-message ai-message">
+                    <strong>AI Tutor:</strong> ${data.answer}
+                    <button class="speak-btn" onclick="speakText('${data.answer.replace(/'/g, "\\'")}')">🔊</button>
+                </div>
+            `;
 
-                // Auto-detect words to add
-                currentExtractedWords = mockResponse.extracted_words || [];
+                currentExtractedWords = data.extracted_words || [];
                 if (currentExtractedWords.length > 0) {
                     showWordsToAdd(currentExtractedWords);
                 }
-            }, 1500);
+            } else {
+                document.getElementById('questionAnswer').innerHTML = `❌ Error: ${data.error}`;
+            }
         } catch (error) {
             document.getElementById('questionAnswer').innerHTML = `❌ Network error: ${error.message}`;
         }
     }
 
-    // 🆕 SHOW WORDS FOR AUTO-ADDING
     function showWordsToAdd(words) {
         let html = '';
         words.forEach((word, index) => {
             html += `
-                <div class="word-to-add">
-                    <strong>${word.bengali}</strong> (${word.transliteration}) - ${word.english}
-                    <button class="add-confirm" onclick="addExtractedWord(${index})">✅ Add</button>
-                </div>
-            `;
+            <div class="word-to-add">
+                <strong>${word.bengali}</strong> (${word.transliteration}) - ${word.english}
+                <button class="add-confirm" onclick="addExtractedWord(${index})">✅ Add</button>
+            </div>
+        `;
         });
         document.getElementById('wordsToAdd').innerHTML = html;
         document.getElementById('autoAddSection').style.display = 'block';
     }
 
-    // 🆕 ADD EXTRACTED WORD
     function addExtractedWord(index) {
         const word = currentExtractedWords[index];
         customWords.push(word);
         localStorage.setItem('customBengaliWords', JSON.stringify(customWords));
         updateCustomVocabDisplay();
 
-        // Remove from current list
         currentExtractedWords.splice(index, 1);
         if (currentExtractedWords.length > 0) {
             showWordsToAdd(currentExtractedWords);
@@ -965,85 +1107,8 @@ if (activeTab && indicator) {
         updateCustomVocabDisplay();
     }
 
-    // 💬 Chat Section Functions
-    async function sendChatMessage() {
-        const message = document.getElementById('chatInput').value;
-        if (!message) return;
-
-        addChatMessage('user', message);
-        document.getElementById('chatInput').value = '';
-
-        try {
-            // Mock API response for demo
-            setTimeout(() => {
-                const responses = [
-                    "That's great! How can I help you practice Bengali today?",
-                    "I understand. Let's practice some common Bengali phrases.",
-                    "Your pronunciation is improving! Keep practicing.",
-                    "Try saying that again with more emphasis on the first syllable."
-                ];
-                const randomResponse = responses[Math.floor(Math.random() * responses.length)];
-
-                addChatMessage('ai', randomResponse);
-            }, 1000);
-        } catch (error) {
-            addChatMessage('ai', `❌ Network error: ${error.message}`);
-        }
-    }
-
-    function addChatMessage(sender, message) {
-        const chatHistory = document.getElementById('chatHistory');
-        const messageDiv = document.createElement('div');
-        messageDiv.className = `chat-message ${sender}-message`;
-
-        if (sender === 'ai') {
-            messageDiv.innerHTML = `
-                <strong>AI Tutor:</strong> ${message}
-                <button class="speak-btn" onclick="speakText('${message.replace(/'/g, "\\'")}')">🔊</button>
-            `;
-        } else {
-            messageDiv.innerHTML = `<strong>You:</strong> ${message}`;
-        }
-
-        chatHistory.appendChild(messageDiv);
-        chatHistory.scrollTop = chatHistory.scrollHeight;
-    }
-
-    // 🎤 Voice Chat Function
-    function startVoiceChat() {
-        if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-            alert("Speech recognition not supported in this browser.");
-            return;
-        }
-
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        const recognition = new SpeechRecognition();
-        recognition.lang = 'bn-BD';
-        recognition.continuous = false;
-        recognition.interimResults = false;
-
-        document.getElementById('voiceChatBtn').textContent = "🎤 Listening...";
-        recognition.start();
-
-        recognition.onresult = function(event) {
-            const spokenText = event.results[0][0].transcript;
-            document.getElementById('chatInput').value = spokenText;
-            document.getElementById('voiceChatBtn').textContent = "🎤 Voice Message";
-            sendChatMessage(); // Automatically send after speech
-        };
-
-        recognition.onerror = function(event) {
-            document.getElementById('voiceChatBtn').textContent = "🎤 Voice Message";
-        };
-    }
-
     // Initialize
     updateCustomVocabDisplay();
-
-    // Load default lesson on page load for demo
-    window.onload = function() {
-        setTimeout(loadDefaultLesson, 500);
-    };
 </script>
 </body>
 </html>
