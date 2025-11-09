@@ -184,41 +184,58 @@ def ask_question():
         prompt = f"""
         Student asks: "{question}"
         
-        IMPORTANT: If they ask how to say something in Bengali, provide the Bengali translation.
-        If they ask about Bengali language/culture, answer specifically about Bengali.
+        You are a Bengali language tutor. Answer the student's question helpfully and accurately.
         
-        Format short answers (2-3 sentences max). 
-        If teaching phrases, format as:
-        Bengali (transliteration) - English
+        CRITICAL FORMATTING RULES:
+        1. If teaching phrases/words, ALWAYS format as: Bengali (transliteration) - English meaning
+        2. Keep answers concise (2-3 sentences max)
+        3. Focus on practical language learning
+        4. Include relevant Bengali examples when helpful
         
-        Always assume they want Bengali unless specified otherwise.
+        Examples of good responses:
+        - "To say 'thank you' in Bengali: ধন্যবাদ (dhonnobad) - thank you"
+        - "The word for water is: পানি (pani) - water"
+        - "In formal situations, use: আপনি (apni) - you (formal)"
+        
+        If the question is about Bengali culture/language, provide specific, accurate information.
+        Always include the Bengali script, transliteration, and English meaning for any taught words.
         """
 
         answer = call_gemini_direct(prompt)
 
-        # Auto-extract phrases for vocabulary
+        # Improved word extraction
         extract_prompt = f"""
-        Extract Bengali vocabulary from this text: "{answer}"
+        Analyze this Bengali language teaching response: "{answer}"
+        
+        Extract ALL Bengali vocabulary words and phrases that would be useful for a language learner to save.
+        Look for patterns like: [Bengali script] (transliteration) - [English meaning]
         
         Return as JSON array of objects with:
         - bengali: the Bengali word/phrase
         - transliteration: English transliteration  
         - english: English meaning
         
-        Only extract actual Bengali words/phrases that would be useful for language learning.
-        If no Bengali words, return empty array.
+        Only include complete word entries that have all three components.
+        If no complete word entries found, return empty array.
         
-        Example: [{{"bengali": "ধন্যবাদ", "transliteration": "dhonnobad", "english": "thank you"}}]
+        Example format: [{{"bengali": "ধন্যবাদ", "transliteration": "dhonnobad", "english": "thank you"}}]
+        
+        IMPORTANT: Only return valid JSON, no other text.
         """
 
         try:
             extraction_result = call_gemini_direct(extract_prompt)
             extraction_result = extraction_result.strip()
+            # Clean up JSON response
             if extraction_result.startswith('```json'):
                 extraction_result = extraction_result.replace('```json', '').replace('```', '')
+            elif extraction_result.startswith('```'):
+                extraction_result = extraction_result.replace('```', '')
+
             extracted_words = json.loads(extraction_result)
         except Exception as e:
             print(f"Word extraction error: {e}")
+            print(f"Raw extraction result: {extraction_result}")
             extracted_words = []
 
         return jsonify({
