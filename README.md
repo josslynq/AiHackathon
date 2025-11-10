@@ -1,7 +1,7 @@
 # Vernacular
 **The AI Tutor for Underrepresented Languages**
 
-> *"The best language learning web platform for underrepresented languages."*  
+> *"Your new go-to language learning web platform for underrepresented languages."*  
 
 **Team:** Aymen Saya, Zaynah Wahab, Tisha Kaur, Josslyn Quansah  
 
