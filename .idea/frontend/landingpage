@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Vernacular — Language for the Win</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --teal-bg: #a7e0df;
+      --deep-teal: #00787b;
+      --accent-yellow: #ffb300;
+      --dark-text: #004f54;
+      --fade-duration: 1.5s;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background-color: var(--teal-bg);
+      color: var(--dark-text);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+      opacity: 1;
+      transition: opacity var(--fade-duration) ease-in-out;
+    }
+
+    body.fade-out {
+      opacity: 0;
+    }
+
+    .container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 85%;
+      max-width: 1200px;
+      opacity: 0;
+      transform: translateY(40px);
+      animation: fadeInUp 1.5s ease forwards;
+    }
+
+    @keyframes fadeInUp {
+      0% { opacity: 0; transform: translateY(40px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Logo + Title + Buttons */
+    .left {
+      max-width: 600px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+      opacity: 0;
+      transform: translateY(-20px);
+      animation: slideDown 1s ease forwards 0.2s;
+    }
+
+    @keyframes slideDown {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .logo-text {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--dark-text);
+    }
+
+    .logo-sub {
+      font-size: 0.9rem;
+      color: #444;
+      margin-left: 5px;
+      letter-spacing: 1px;
+      opacity: 0;
+      animation: fadeIn 1s ease forwards 0.5s;
+    }
+
+    h1 {
+      font-size: 4rem;
+      font-weight: 700;
+      letter-spacing: 3px;
+      color: var(--dark-text);
+      margin: 10px 0;
+      text-shadow: 2px 3px rgba(0,0,0,0.1);
+      opacity: 0;
+      animation: popIn 1.3s ease forwards 0.8s;
+    }
+
+    @keyframes popIn {
+      0% { transform: scale(0.9); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    p.tagline {
+      font-size: 1.1rem;
+      letter-spacing: 1px;
+      color: #224;
+      margin-bottom: 40px;
+      opacity: 0;
+      transform: translateY(10px);
+      animation: fadeInUpText 1s ease forwards 1.1s;
+    }
+
+    @keyframes fadeInUpText {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .question-btn {
+      background-color: #4285f4;
+      color: white;
+      font-weight: 600;
+      border: none;
+      border-radius: 30px;
+      padding: 15px 30px;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-bottom: 25px;
+      transition: all 0.3s ease;
+      opacity: 0;
+      animation: fadeIn 1s ease forwards 1.5s;
+    }
+
+    .question-btn:hover {
+      background-color: #3367d6;
+      transform: translateY(-2px);
+    }
+
+    .cta-btn {
+      background-color: transparent;
+      border: 3px dashed var(--accent-yellow);
+      border-radius: 40px;
+      color: var(--dark-text);
+      font-weight: 700;
+      font-size: 1.2rem;
+      padding: 15px 50px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      opacity: 0;
+      animation: fadeIn 1s ease forwards 1.9s, pulseGlow 2.5s ease-in-out infinite 3s;
+    }
+
+    @keyframes fadeIn {
+      to { opacity: 1; }
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% {
+        box-shadow: 0 0 10px rgba(255,179,0,0.4);
+      }
+      50% {
+        box-shadow: 0 0 25px rgba(255,179,0,0.7);
+      }
+    }
+
+    .cta-btn:hover {
+      background-color: var(--accent-yellow);
+      color: white;
+      transform: scale(1.05);
+      box-shadow: 0 0 20px rgba(255,179,0,0.6);
+    }
+
+    /* Globe */
+    .globe {
+      width: 300px;
+      max-width: 35vw;
+      border-radius: 50%;
+      box-shadow: 0 0 30px rgba(0,0,0,0.15);
+      animation: float 6s ease-in-out infinite, fadeInGlobe 1.5s ease forwards 1.2s;
+      opacity: 0;
+    }
+
+    @keyframes fadeInGlobe {
+      to { opacity: 1; }
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-15px); }
+    }
+
+    @media (max-width: 900px) {
+      .container {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .globe {
+        margin-top: 40px;
+      }
+
+      h1 {
+        font-size: 3rem;
+      }
+
+      .cta-btn {
+        padding: 12px 35px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="left">
+      <div class="logo">
+        <span class="logo-text">🟨 <strong>VERNACULAR</strong></span>
+      </div>
+      <p class="logo-sub">Language for the win</p>
+
+      <h1>VERNACULAR</h1>
+      <p class="tagline">Preserving Heritages, Connecting People</p>
+
+      <button class="question-btn">Which language do you want to learn today?</button><br>
+      <button class="cta-btn" id="enterBtn">BANGLABOT</button>
+    </div>
+
+    <img src="https://upload.wikimedia.org/wikipedia/commons/9/97/The_Earth_seen_from_Apollo_17.jpg"
+         alt="Earth Globe"
+         class="globe">
+  </div>
+
+  <script>
+    // Fade-out transition on click
+    document.getElementById('enterBtn').addEventListener('click', () => {
+      document.body.classList.add('fade-out');
+      setTimeout(() => {
+        window.location.href = 'index.html';
+      }, 1500); // matches fade duration
+    });
+  </script>
+</body>
+</html>
